@@ -1,0 +1,224 @@
+<template>
+    <lightning-card title="AWS S3 Files and Folders" icon-name="standard:file">
+        <!-- Header Section -->
+        <div slot="actions">
+            <lightning-button-group>
+                <lightning-button label="Upload Files or Folders" icon-name="utility:upload" onclick={handleUploadClick}
+                    variant="brand" disabled={isLoading}>
+                </lightning-button>
+                <lightning-button label="Create Folder" icon-name="utility:new_folder" onclick={createFolder}
+                    disabled={isLoading}>
+                </lightning-button>
+                <lightning-button label="Refresh" icon-name="utility:refresh" onclick={handleRefresh}
+                    disabled={isLoading}>
+                </lightning-button>
+            </lightning-button-group>
+        </div>
+
+        <!-- Main Content Area with Drag & Drop -->
+
+        <!-- Drag & Drop Overlay -->
+        <template if:true={dragOver}>
+            <div class="drag-overlay">
+                <div class="drag-message">
+                    <lightning-icon icon-name="utility:upload" size="large"></lightning-icon>
+                    <h3 class="slds-text-heading_medium slds-m-top_small">Drop files here to upload</h3>
+                    <p class="slds-text-color_weak">Release to start uploading to current folder</p>
+                </div>
+            </div>
+        </template>
+
+        <!-- Breadcrumb Navigation -->
+        <template if:true={showBreadcrumb}>
+            <lightning-breadcrumbs>
+                <template for:each={breadcrumbItems} for:item="item">
+                    <lightning-breadcrumb key={item.name} label={item.label} name={item.name}
+                        onclick={handleBreadcrumbClick}>
+                    </lightning-breadcrumb>
+                </template>
+            </lightning-breadcrumbs>
+            <div class="slds-m-bottom_medium"></div>
+        </template>
+
+        <!-- Search and Stats Section -->
+        <div class="slds-grid slds-gutters slds-wrap slds-m-bottom_medium">
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input type="search" label="Search files and folders" placeholder="Search by name or type..."
+                    value={searchTerm} onchange={handleSearch}>
+                </lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-2">
+                <div class="slds-text-align_right slds-p-top_medium">
+                    <span class="slds-text-color_weak">
+                            {itemCount} items ({folderCount} folders, {fileCount} files)
+                        </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Progress Section -->
+        <template if:true={isUploading}>
+            <div class="slds-box slds-m-bottom_medium">
+                <div class="slds-grid slds-gutters slds-grid_align-spread slds-m-bottom_small">
+                    <div class="slds-col">
+                        <h3 class="slds-text-heading_small">Uploading Files...</h3>
+                    </div>
+                    <div class="slds-col slds-shrink">
+                        <span class="slds-text-body_small">{uploadProgressPercentage}%</span>
+                    </div>
+                </div>
+                <lightning-progress-bar value={uploadProgress} size="large"></lightning-progress-bar>
+            </div>
+        </template>
+
+        <!-- Loading Spinner -->
+        <template if:true={isLoading}>
+            <div class="slds-is-relative slds-m-vertical_large">
+                <lightning-spinner alternative-text="Loading..." size="medium">
+                </lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Data Table -->
+        <template if:false={isLoading}>
+            <template if:true={hasItems}>
+                <lightning-datatable key-field="id" data={filteredItems} columns={columns} sorted-by={sortedBy}
+                    sorted-direction={sortDirection} onsort={handleSort} onrowaction={handleRowAction}
+                    onrowselection={handleRowSelection} hide-checkbox-column show-row-number-column>
+                </lightning-datatable>
+            </template>
+
+            <!-- No Data Message -->
+            <template if:false={hasItems}>
+                <div class="slds-text-align_center slds-m-vertical_large">
+                    <lightning-icon icon-name="standard:file" size="large" class="slds-m-bottom_small">
+                    </lightning-icon>
+                    <h3 class="slds-text-heading_medium slds-m-bottom_small">
+                        No files or folders found
+                    </h3>
+                    <p class="slds-text-color_weak slds-m-bottom_medium">
+                        <template if:true={searchTerm}>
+                            No items match your search criteria. Try adjusting your search terms.
+                        </template>
+                        <template if:false={searchTerm}>
+                            This location appears to be empty. Upload some files to get started.
+                        </template>
+                    </p>
+                    <lightning-button label="Upload Files" icon-name="utility:upload" onclick={handleUploadClick}
+                        variant="brand">
+                    </lightning-button>
+                </div>
+            </template>
+        </template>
+
+    </lightning-card>
+
+    <!-- Upload Modal -->
+    <template if:true={showUploadModal}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal Header -->
+                <header class="slds-modal__header">
+                    <lightning-button-icon icon-name="utility:close" onclick={handleCloseUploadModal}
+                        alternative-text="close" variant="bare-inverse" class="slds-modal__close">
+                    </lightning-button-icon>
+                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Upload Files</h2>
+                    <p class="slds-m-top_x-small">
+                        Current location: <strong>/{currentPath}</strong>
+                    </p>
+                </header>
+
+                <!-- Modal Body -->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+
+                    <!-- File Input -->
+                    <template if:false={isUploading}>
+                        <div class="slds-form-element">
+                            <label class="slds-form-element__label" for="file-upload-input">
+                                <span class="slds-required">*</span>Select files to upload
+                            </label>
+                            <div class="slds-form-element__control">
+                                <input
+                                    type="file"
+                                    id="file-upload-input"
+                                    multiple
+                                    onchange={handleFileSelection}
+                                    class="slds-file-selector__input slds-assistive-text"
+                                    accept="*/*">
+                                <label class="slds-file-selector__body" for="file-upload-input">
+                                    <span class="slds-file-selector__button slds-button slds-button_neutral">
+                                        <lightning-icon icon-name="utility:upload" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                        Choose Files
+                                    </span>
+                                    <span class="slds-file-selector__text slds-medium-show">or drop files here</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="slds-text-color_weak slds-text-body_small slds-m-top_small">
+                            <lightning-icon icon-name="utility:info" size="x-small" class="slds-m-right_x-small">
+                            </lightning-icon>
+                            You can select multiple files or drag and drop them directly onto this component.
+                        </div>
+                    </template>
+
+                    <!-- Upload Progress -->
+                    <template if:true={isUploading}>
+                        <div class="slds-m-bottom_medium">
+                            <div class="slds-grid slds-gutters slds-grid_align-spread slds-m-bottom_small">
+                                <div class="slds-col">
+                                    <h3 class="slds-text-heading_small">Uploading files...</h3>
+                                </div>
+                                <div class="slds-col slds-shrink">
+                                    <span class="slds-text-body_small">{uploadProgressPercentage}%</span>
+                                </div>
+                            </div>
+                            <lightning-progress-bar value={uploadProgress} size="large"></lightning-progress-bar>
+                        </div>
+                    </template>
+
+                    <!-- Upload Results -->
+                    <template if:true={hasUploadedFiles}>
+                        <div class="slds-box slds-box_small slds-theme_success slds-m-bottom_small">
+                            <h4 class="slds-text-heading_small slds-m-bottom_x-small">
+                                <lightning-icon icon-name="utility:success" size="x-small" class="slds-m-right_x-small">
+                                </lightning-icon>
+                                Successfully Uploaded ({uploadedFiles.length})
+                            </h4>
+                            <ul class="slds-list_dotted">
+                                <template for:each={uploadedFiles} for:item="file">
+                                    <li key={file.name} class="slds-item">{file.name} ({file.size})</li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+
+                    <template if:true={hasFailedUploads}>
+                        <div class="slds-box slds-box_small slds-theme_error">
+                            <h4 class="slds-text-heading_small slds-m-bottom_x-small">
+                                <lightning-icon icon-name="utility:error" size="x-small" class="slds-m-right_x-small">
+                                </lightning-icon>
+                                Failed Uploads ({failedUploads.length})
+                            </h4>
+                            <ul class="slds-list_dotted">
+                                <template for:each={failedUploads} for:item="file">
+                                    <li key={file.name} class="slds-item">
+                                        {file.name} ({file.size}) - {file.error}
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Modal Footer -->
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Close" onclick={handleCloseUploadModal}
+                        disabled={isUploading}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>

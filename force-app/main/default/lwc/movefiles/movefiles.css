@@ -1,0 +1,368 @@
+.container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+        'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #ffffff;
+    padding: 10px;
+    height: 100%;
+}
+
+.custom-card {
+    border: 1px solid #d8dde6;
+    border-radius: 0.25rem;
+    background-color: white;
+    margin: 0;
+}
+
+.custom-card-header {
+    background-color: #f3f2f2;
+}
+
+/* Section spacing */
+.section-spacing {
+    margin: 0.5rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+        'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* ── Search Results ── */
+.search-results-wrapper {
+    border: 1px solid #868686;
+    border-radius: 0.25rem;
+    background: #fff;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 4px;
+    padding: 0;
+    list-style: none;
+}
+
+.search-result-item {
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #080707;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f3f2f2;
+    user-select: none;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background-color: #f3f2f2;
+}
+
+/* ── Source Files Custom Dropdown ── */
+
+.dropdown-box {
+    border: 1px solid #868686;
+    padding: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0.25rem;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.custom-dropdown .dropdown-options {
+    border: 1px solid #868686;
+    margin-top: 4px;
+    background: #fff;
+    border-radius: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.custom-dropdown .dropdown-option {
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #080707;
+    border-bottom: 1px solid #f3f2f2;
+}
+
+.custom-dropdown .dropdown-option:last-child {
+    border-bottom: none;
+}
+
+.custom-dropdown .dropdown-option:hover {
+    background-color: #f3f2f2;
+}
+
+/* ── Selected Contact / Target Record ── */
+.selected-contact-wrapper {
+    margin-top: 0.5rem;
+}
+
+.selected-contact-box {
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    min-height: 2.5rem;
+    border: 1px solid #dddbda;
+    border-radius: 4px;
+    padding: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.contact-name {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.close-contact-btn {
+    margin-left: auto;
+    background: white;
+    border-radius: 4px;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+}
+
+/* ── File Pills ── */
+.file-pill {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #dddbda;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 4px 8px 4px 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+}
+
+.file-icon {
+    margin-right: 6px;
+    --slds-c-icon-color-foreground-default: #c28f2c;
+}
+
+.file-name {
+    color: #0070d2;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-right: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.remove-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+/* ── Action Buttons ── */
+.action-buttons {
+    margin-top: 0.5rem;
+}
+
+.selection-actions {
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.action-link--active {
+    color: #0070d2;
+    text-decoration: underline;
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.action-link--disabled {
+    color: #a8a8a8;
+    text-decoration: none;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.source-files-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.label-disabled {
+    color: #c9c7c5;
+}
+
+.dropdown-box-disabled {
+    background-color: #f3f3f3;
+    border-color: #dddbda;
+    cursor: not-allowed;
+}
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.loading-small lightning-spinner {
+    transform: scale(0.7);
+}
+
+.loading-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.loading-text {
+    font-size: 12px;
+    color: #6b6d70;
+}
+
+.search-result-item--disabled {
+    color: #c9c9c9;
+    cursor: not-allowed;
+    background-color: #f3f3f3;
+    pointer-events: none;
+}
+
+.same-record-label {
+    font-size: 11px;
+    color: #999;
+    font-style: italic;
+}
+
+/* ── Error text — same as Search Files component ── */
+.filter-error-text {
+    color: #c23934;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.dropdown-box-error {
+    border: 3px solid #c23934 !important;
+    border-radius: 4px;
+}
+
+/* ── Target Object error wrapper — FINAL FIX v4 WITH DROPDOWN ── */
+.error-combobox-wrapper {
+    border: 3px solid #c23934;
+    border-radius: 4px;
+    display: block;
+    overflow: visible;
+    position: relative;
+}
+
+.error-combobox-wrapper lightning-combobox {
+    display: block;
+    width: 100%;
+    z-index: 10;
+}
+
+/* REMOVE ALL INNER BORDERS - MULTIPLE SELECTORS */
+.error-combobox-wrapper .slds-combobox {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.error-combobox-wrapper .slds-combobox__form-element {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.error-combobox-wrapper .slds-combobox__input {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.error-combobox-wrapper .slds-input {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.error-combobox-wrapper lightning-combobox::part(combobox) {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.error-combobox-wrapper lightning-combobox::part(input) {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.error-combobox-wrapper lightning-combobox::part(form-element) {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Override Lightning component CSS variables */
+.error-combobox-wrapper lightning-combobox {
+    --slds-c-combobox-color-border: transparent !important;
+    --slds-c-combobox-color-border-focus: transparent !important;
+    --slds-c-combobox-shadow: none !important;
+    --slds-c-combobox-shadow-focus: none !important;
+    --slds-c-input-color-border: transparent !important;
+    --slds-c-input-color-border-focus: transparent !important;
+    --slds-c-input-shadow: none !important;
+    --slds-c-input-shadow-focus: none !important;
+    --lwc-colorBorder: transparent !important;
+    --lwc-colorBorderInput: transparent !important;
+    --lwc-shadowOutlineFocus: none !important;
+}
+
+.error-combobox-wrapper lightning-combobox:focus-within {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* ── Search Records error wrapper ── */
+.error-search-wrapper {
+    border: 3px solid #c23934 !important;
+    border-radius: 4px;
+    overflow: hidden;
+    display: block;
+}
+
+.error-search-wrapper lightning-input {
+    --slds-c-input-color-border: transparent;
+    --slds-c-input-color-border-focus: transparent;
+    --slds-c-input-shadow-focus: none;
+    --lwc-colorBorderInputActive: transparent;
+    --lwc-shadowOutlineFocus: none;
+    --slds-c-input-shadow: none;
+    --lwc-colorBorder: transparent;
+    display: block;
+    width: 100%;
+}
+
+.error-search-wrapper .slds-input {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.error-search-wrapper:focus-within {
+    border: 2px solid #c23934 !important;
+    box-shadow: none !important;
+}
+
+.error-search-wrapper lightning-input:focus-within {
+    --slds-c-input-color-border-focus: transparent;
+    --slds-c-input-shadow-focus: none;
+}
+
+.input-error {
+    --slds-c-input-color-border: #c23934;
+    --slds-c-input-color-border-focus: #c23934;
+}

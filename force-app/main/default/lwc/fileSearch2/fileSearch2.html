@@ -1,0 +1,266 @@
+<template>
+    <div class="slds-p-bottom_xx-small">
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:file" alternative-text="File Repository">
+                            </lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h1 class="header">
+                                <span class="slds-page-header__title slds-truncate">File Repository</span>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <article class="slds-card">
+        <div class="slds-card__body slds-card__body_inner slds-p-bottom_small">
+
+            <div class="slds-grid slds-wrap slds-p-horizontal_small slds-p-bottom_small">
+                <div class="search-container">
+
+                    <label class="slds-form-element__label custom-search-label">
+                        <abbr class="slds-required">*</abbr>
+                        Enter the File Name to Search
+                    </label>
+
+                    <div class="search-row">
+
+                        <lightning-input type="text" label="" variant="label-hidden" value={searchTerm}
+                            onchange={searchval} required class="search-input" placeholder="Enter a file name"
+                            message-when-value-missing="Please Enter a File Name">
+                        </lightning-input>
+
+                        <!-- Filter Button: shown when filter panel is HIDDEN -->
+                        <template lwc:if={showFilterBtn}>
+                            <lightning-button variant="brand" label="Filter" onclick={addfilter} class="search-btn">
+                            </lightning-button>
+                        </template>
+
+                        <!-- Remove Button: shown when filter panel is VISIBLE -->
+                        <template lwc:if={showRemoveBtn}>
+                            <lightning-button variant="destructive" label="Remove" onclick={addfilter}
+                                class="search-btn">
+                            </lightning-button>
+                        </template>
+
+                        <lightning-button variant="destructive" label="Clear" disabled={isClearDisabled}
+                            onclick={handleClearClick} class="search-btn">
+                        </lightning-button>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Panel -->
+            <template lwc:if={showfilter} key={filterKey}>
+                <div class="slds-grid slds-wrap slds-gutters_small slds-p-horizontal_small
+                            slds-p-bottom_small slds-grid_vertical-align-end">
+
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_3-of-12 filter-field">
+                        <lightning-combobox name="filterName" label="Filter Name" value={selectedFilterKey}
+                            placeholder="Select a filter" options={filterNameOptions} onchange={handleChangefilter}
+                            required message-when-value-missing="Select a Filter">
+                        </lightning-combobox>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_2-of-12 filter-field">
+                        <lightning-combobox name="operator" label="Operator" value={operator}
+                            placeholder="Select an operator" options={operatorOptions} onchange={handleChangeoperator}
+                            required message-when-value-missing="Select an Operator">
+                        </lightning-combobox>
+                    </div>
+
+                    <div class="slds-col slds-size_1-of-1 slds-large-size_4-of-12 filter-field">
+
+                        <template lwc:if={isObjectName}>
+                            <lightning-combobox name="objectNameValue" label="Object Name" value={filterValue}
+                                placeholder="Enter a value" options={parentNameOptions} onchange={valuechange} required
+                                message-when-value-missing="Select an Object">
+                            </lightning-combobox>
+                        </template>
+
+                        <template lwc:elseif={isFileType}>
+                            <lightning-combobox name="fileTypeValue" label="File Type" value={filterValue}
+                                placeholder="Enter a value" options={typeOptions} onchange={valuechange} required
+                                message-when-value-missing="Select a File Type">
+                            </lightning-combobox>
+                        </template>
+
+                        <template lwc:elseif={isCreatedDate}>
+                            <lightning-input type="date" label="Date" value={filterValue} placeholder="Enter a value"
+                                max={todayDate} onchange={valuechange} required
+                                message-when-value-missing="Please select a date">
+                            </lightning-input>
+                        </template>
+
+                        <template lwc:else>
+                            <lightning-input type="text" label="Value" placeholder="Enter a value" disabled>
+                            </lightning-input>
+                        </template>
+
+                    </div>
+
+                    <div
+                        class="slds-col slds-size_1-of-1 slds-large-size_2-of-12 filter-field apply-btn slds-is-relative">
+                        <lightning-button variant="brand" label="Apply" title="Apply Filter" disabled={isApplyDisabled}
+                            onclick={handlefilterClick}>
+                        </lightning-button>
+                    </div>
+
+                </div>
+            </template>
+
+            <!-- Spinner -->
+            <template lwc:if={spinner}>
+                <lightning-spinner variant="brand" alternative-text="Loading" size="large">
+                </lightning-spinner>
+            </template>
+
+            <!-- Data Table -->
+            <template lwc:if={isdataTable}>
+                <lightning-card>
+                    <div class="custom-table-container table-padding">
+                        <table class="slds-table custom-border-table">
+                            <thead>
+                                <tr>
+                                    <th class="file-name-header">File Name</th>
+                                    <th>File Type</th>
+                                    <th>Date</th>
+                                    <th>File Size</th>
+                                    <th>Parent Object</th>
+                                    <th>Uploaded By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={dataTable} for:item="file">
+                                    <tr key={file.id}>
+                                        <td>
+                                            <span
+                                                class="file-link"
+                                                onclick={handleRowClick}
+                                                data-id={file.id}>
+                                                {file.fileName}
+                                            </span>
+                                        </td>
+                                
+                                        <td>
+                                            <span class={file.fileTypeBoxClass}>{file.fileTypeLabel}</span>
+                                        </td>
+
+                                        <td>{file.formattedDate}</td>
+                                        <td>{file.formattedSize}</td>
+                                        <td class="center-dash">{file.parentObjectLabel}</td>
+                                        <td>{file.uploadedBy}</td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </lightning-card>
+            </template>
+
+            <!-- Empty State -->
+            <template lwc:else>
+                <template lwc:if={spinner}></template>
+                <template lwc:else>
+                    <div class="slds-align_absolute-center slds-p-vertical_xx-large slds-text-align_center">
+                        <div class="empty-state-container">
+                            <lightning-icon icon-name="utility:search" size="large" class="empty-state-icon">
+                            </lightning-icon>
+                            <p class="emptyMessage">No files found...</p>
+                        </div>
+                    </div>
+                </template>
+            </template>
+
+        </div>
+
+        <!-- Footer Pagination -->
+        <footer class="slds-card__footer">
+            <div class="slds-align_absolute-center footer_padding">
+                <div class="slds-p-right_xx-small">
+                    <lightning-button label="Prev" disabled={isPrev} onclick={handlePagePrevAction} variant="brand"
+                        icon-name="utility:back" name="prev">
+                    </lightning-button>
+                </div>
+                <span class="slds-badge slds-badge_lightest">
+                    {recordStart}-{recordEnd} of {totalRecords} | Page {pageNumber} of {totalPages}
+                </span>
+                <div class="slds-p-left_xx-small">
+                    <lightning-button label="Next" disabled={isNext} onclick={handlePageNextAction} variant="brand"
+                        icon-name="utility:forward" icon-position="right" name="next">
+                    </lightning-button>
+                </div>
+            </div>
+        </footer>
+    </article>
+
+    <!-- Preview Modal -->
+    <template lwc:if={showModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+            class="slds-modal slds-fade-in-open slds-modal_full">
+            <div class="slds-modal__container">
+                <button
+                    class="slds-button slds-button_icon slds-modal__close"
+                    onclick={handleCloseModal}>
+                    <lightning-icon icon-name="utility:close" alternative-text="Close" size="small">
+                    </lightning-icon>
+                </button>
+                <div class="slds-modal__header">
+                    <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Preview</h1>
+                </div>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <template lwc:if={url}>
+                        <iframe src={url} class="iframeSize" title="File Preview"></iframe>
+                    </template>
+                    <template lwc:else>
+                        <p>{urlerror}</p>
+                    </template>
+                </div>
+                <div class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={handleDownloadClick}>
+                        Download
+                    </button>
+                    <button class="slds-button slds-button_brand" onclick={handleCloseModal}>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+
+    <!-- Download Popup -->
+    <template lwc:if={downloadPopup}>
+        <div class="download-backdrop">
+            <div class="download-manager">
+                <h2>Download Manager</h2>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>File Name:</td>
+                            <td>{fileName}</td>
+                        </tr>
+                        <tr>
+                            <td>File Size:</td>
+                            <td>{fileSize}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <progress value={progress} max="100"></progress>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+
+</template>

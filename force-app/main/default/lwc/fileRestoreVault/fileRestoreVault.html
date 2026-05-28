@@ -1,0 +1,544 @@
+<template>
+
+    <lightning-card>
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+
+            <!-- STEP 1 : Restore Type -->
+            <template if:true={showRestoreOptions}>
+                <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">Select Restore Type</div>
+                <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center">
+                    <div class="option-item">
+                        <lightning-input type="radio" variant="label-hidden" name="restoreType" value="instant"
+                            checked={isInstantRestoreSelected} onchange={handleRestoreType}></lightning-input>
+                        <span class="option-label">Instant Restore</span>
+                        <lightning-helptext content="Restore files immediately from the vault"></lightning-helptext>
+                    </div>
+                    <div class="or-text slds-m-horizontal_large">or</div>
+                    <div class="option-item">
+                        <lightning-input type="radio" variant="label-hidden" name="restoreType" value="schedule"
+                            checked={isScheduleRestoreSelected} onchange={handleRestoreType}></lightning-input>
+                        <span class="option-label">Schedule Restore</span>
+                        <lightning-helptext content="Schedule automatic restore from the vault"></lightning-helptext>
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" onclick={handleBackToParent}></lightning-button>
+                    <lightning-button label="Next" variant="brand" disabled={isRestoreNextDisabled}
+                        onclick={handleRestoreNext}></lightning-button>
+                </div>
+            </template>
+
+            <!-- STEP 2 : Instant Restore -->
+            <template if:true={showInstantRestorePage}>
+                <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">Instant Restore</div>
+                <div class="slds-grid slds-wrap slds-grid_align-center">
+                    <div class="slds-col slds-size_10-of-12">
+                        <div class="slds-grid slds-gutters">
+
+                            <!-- Object -->
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="multiselect-wrapper slds-is-relative">
+                                    <label class="slds-form-element__label"><abbr class="slds-required"
+                                            title="required">*</abbr> Select Objects</label>
+                                    <div class={instantRestoreObjectTriggerClass}
+                                        onclick={toggleInstantRestoreObjectDropdown}>
+                                        <template if:true={hasSelectedObjects}>
+                                            <span class="ms-preview-text">{selectedObjectLabels}</span>
+                                            <span class="ms-badge">{selectedObjectsCount}</span>
+                                            <lightning-button-icon icon-name="utility:close" alternative-text="Clear"
+                                                variant="bare" size="small" onclick={clearObjects}>
+                                            </lightning-button-icon>
+                                        </template>
+                                        <template if:false={hasSelectedObjects}>
+                                            <span class="ms-placeholder">Choose Objects</span>
+                                            <lightning-icon icon-name="utility:down" size="x-small" class="ms-arrow">
+                                            </lightning-icon>
+                                        </template>
+                                    </div>
+                                    <template if:true={isInstantRestoreObjectDropdownOpen}>
+                                        <div class="ms-dropdown slds-is-absolute">
+                                            <div class="ms-search slds-is-relative" onclick={stopPropagation}>
+                                                <lightning-input type="search" variant="label-hidden"
+                                                    placeholder="Search objects..."
+                                                    value={instantRestoreObjectSearchTerm}
+                                                    onchange={handleInstantRestoreObjectSearch}></lightning-input>
+                                            </div>
+                                            <div class="ms-select-all slds-is-relative" onclick={toggleSelectAllObjects}>
+                                                <template if:true={isSelectAllObjectsLoading}>
+                                                    <div class="ms-select-all-spinner">
+                                                        <lightning-spinner alternative-text="Loading..." size="small"
+                                                            variant="brand"></lightning-spinner>
+                                                    </div>
+                                                </template>
+                                                <template if:false={isSelectAllObjectsLoading}>
+                                                    <span class={selectAllObjectsCheckboxClass}>
+                                                        <template if:true={isAllObjectsSelected}>
+                                                            <svg class="ms-check-icon"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                viewBox="0 0 24 24" fill="none"
+                                                                stroke="currentColor" stroke-width="3">
+                                                                <polyline points="20 6 9 17 4 12" />
+                                                            </svg>
+                                                        </template>
+                                                    </span>
+                                                    <span class="ms-item-label ms-select-all-label">Select All</span>
+                                                    <span class="ms-select-all-count">({rawObjectOptions.length})</span>
+                                                </template>
+                                            </div>
+                                            <ul class="ms-list">
+                                                <template if:true={hasFilteredInstantRestoreObjects}>
+                                                    <template for:each={filteredInstantRestoreObjects} for:item="obj">
+                                                        <li key={obj.value} class={obj.itemClass} data-value={obj.value}
+                                                            onclick={handleObjectToggle}>
+                                                            <span class={obj.checkboxClass}>
+                                                                <template if:true={obj.checked}>
+                                                                    <svg class="ms-check-icon"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="3">
+                                                                        <polyline points="20 6 9 17 4 12" />
+                                                                    </svg>
+                                                                </template>
+                                                            </span>
+                                                            <span class="ms-item-label">{obj.label}</span>
+                                                        </li>
+                                                    </template>
+                                                </template>
+                                                <template if:false={hasFilteredInstantRestoreObjects}>
+                                                    <li class="ms-no-results">No objects found</li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Records -->
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="multiselect-wrapper slds-is-relative">
+                                    <label class="slds-form-element__label">Select Records</label>
+                                    <template if:true={isLoadingInstantRestoreRecords}>
+                                        <div class="slds-align_absolute-center slds-p-around_small">
+                                            <lightning-spinner alternative-text="Loading records..." size="small">
+                                            </lightning-spinner>
+                                        </div>
+                                    </template>
+                                    <template if:false={isLoadingInstantRestoreRecords}>
+                                        <div class={instantRestoreRecordTriggerClass}
+                                            onclick={toggleInstantRestoreRecordDropdown}>
+                                            <template if:true={hasSelectedInstantRestoreRecords}>
+                                                <span
+                                                    class="ms-preview-text">{selectedInstantRestoreRecordLabels}</span>
+                                                <span class="ms-badge">{selectedInstantRestoreRecordsCount}</span>
+                                                <lightning-button-icon icon-name="utility:close"
+                                                    alternative-text="Clear" variant="bare" size="small"
+                                                    onclick={clearInstantRestoreRecords}></lightning-button-icon>
+                                            </template>
+                                            <template if:false={hasSelectedInstantRestoreRecords}>
+                                                <span class="ms-placeholder">
+                                               <template if:true={noInstantRestoreRecordsAvailable}>
+                                                    No Records available
+                                                </template>
+                                            <template if:false={noInstantRestoreRecordsAvailable}>
+                                                   <template if:true={isMultipleObjectsSelected}>
+                                                     Multiple objects selected
+                                                   </template>
+                                                <template if:false={isMultipleObjectsSelected}>
+                                                       <template if:true={hasSelectedObjects}>
+                                                        Choose Records
+                                                       </template>
+                                                   <template if:false={hasSelectedObjects}>
+                                                        Select an Object to Continue
+                                                   </template>
+                                                </template>
+                                          </template>
+                                        </span>
+                                                <lightning-icon icon-name="utility:down" size="x-small"
+                                                    class="ms-arrow"></lightning-icon>
+                                            </template>
+                                        </div>
+                                    </template>
+                                    <template if:true={noInstantRestoreRecordsAvailable}>
+                                        <p class="slds-text-body_small slds-text-color_error slds-m-top_xx-small">
+                                            <lightning-icon icon-name="utility:error" size="xx-small"
+                                                class="slds-m-right_xx-small"></lightning-icon>
+                                            No Records available
+                                        </p>
+                                    </template>
+                                    <template if:true={isMultipleObjectsSelected}>
+                                        <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                            <lightning-icon icon-name="utility:info" size="xx-small"
+                                                class="slds-m-right_xx-small"></lightning-icon>
+                                            Record selection unavailable when multiple objects are selected.
+                                        </p>
+                                    </template>
+                                    <template if:true={isInstantRestoreRecordDropdownOpen}>
+                                        <div class="ms-dropdown slds-is-absolute">
+                                            <div class="ms-search" onclick={stopPropagation}>
+                                                <lightning-input type="search" variant="label-hidden"
+                                                    placeholder="Search records..."
+                                                    value={instantRestoreRecordSearchTerm}
+                                                    onchange={handleInstantRestoreRecordSearch}></lightning-input>
+                                            </div>
+                                            <div class="ms-select-all slds-is-relative" onclick={toggleSelectAllInstantRestoreRecords}>
+                                                <template if:true={isSelectAllInstantRestoreRecordsLoading}>
+                                                    <div class="ms-select-all-spinner slds-is-relative">
+                                                        <lightning-spinner alternative-text="Loading..." size="small"
+                                                            variant="brand"></lightning-spinner>
+                                                    </div>
+                                                </template>
+                                                <template if:false={isSelectAllInstantRestoreRecordsLoading}>
+                                                    <span class={selectAllInstantRestoreCheckboxClass}>
+                                                        <template if:true={isAllInstantRestoreRecordsSelected}>
+                                                            <svg class="ms-check-icon"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                viewBox="0 0 24 24" fill="none"
+                                                                stroke="currentColor" stroke-width="3">
+                                                                <polyline points="20 6 9 17 4 12" />
+                                                            </svg>
+                                                        </template>
+                                                    </span>
+                                                    <span class="ms-item-label ms-select-all-label">Select All</span>
+                                                    <span
+                                                        class="ms-select-all-count">({rawInstantRestoreRecordOptions.length})</span>
+                                                </template>
+                                            </div>
+                                            <ul class="ms-list">
+                                                <template if:true={hasFilteredInstantRestoreRecords}>
+                                                    <template for:each={filteredInstantRestoreRecords} for:item="rec">
+                                                        <li key={rec.value} class={rec.itemClass} data-value={rec.value}
+                                                            onclick={handleInstantRestoreRecordToggle}>
+                                                            <span class={rec.checkboxClass}>
+                                                                <template if:true={rec.checked}>
+                                                                    <svg class="ms-check-icon"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="3">
+                                                                        <polyline points="20 6 9 17 4 12" />
+                                                                    </svg>
+                                                                </template>
+                                                            </span>
+                                                            <span class="ms-item-label">{rec.label}</span>
+                                                        </li>
+                                                    </template>
+                                                </template>
+                                                <template if:false={hasFilteredInstantRestoreRecords}>
+                                                    <li class="ms-no-results">No records found</li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- File Datatable -->
+                        <template if:true={showInstantRestoreFileTable}>
+                            <div class="slds-m-top_medium">
+                                <template if:true={isLoadingInstantRestoreFiles}>
+                                    <div class="slds-align_absolute-center slds-p-around_medium">
+                                        <lightning-spinner alternative-text="Loading files..." size="small">
+                                        </lightning-spinner>
+                                    </div>
+                                </template>
+                                <template if:false={isLoadingInstantRestoreFiles}>
+                                    <template if:true={hasInstantRestoreFiles}>
+                                        <lightning-datatable key-field="Id" data={instantRestoreFileList}
+                                            columns={fileColumns} selected-rows={selectedInstantFileIds}
+                                            onrowselection={handleInstantFileSelection}>
+                                        </lightning-datatable>
+                                    </template>
+                                    <template if:false={hasInstantRestoreFiles}>
+                                        <div class="slds-text-align_center slds-text-color_weak slds-p-around_medium">
+                                            <p class="slds-text-body_regular">No files found for selected records.
+                                            </p>
+                                        </div>
+                                    </template>
+                                </template>
+                            </div>
+                        </template>
+
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" disabled={isBackupInProgress} onclick={handleInstantRestoreBack}>
+                    </lightning-button>
+                    <lightning-button label={instantRestoreStartLabel} variant="brand"
+                        disabled={isInstantRestoreStartDisabled} onclick={startInstantRestore}>
+                    </lightning-button>
+                </div>
+            </template>
+
+            <!-- STEP 3 : Schedule Restore -->
+            <template if:true={showScheduleRestorePage}>
+                <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">Schedule Restore</div>
+                <div class="slds-grid slds-wrap slds-grid_align-center">
+                    <div class="slds-col slds-size_10-of-12">
+                        <div class="slds-grid slds-gutters slds-wrap">
+
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-combobox label="Select Frequency" value={restoreFrequency}
+                                    options={backupOptions} onchange={handleRestoreFrequency} required>
+                                </lightning-combobox>
+                            </div>
+
+                            <!-- Object -->
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="multiselect-wrapper slds-is-relative">
+                                    <label class="slds-form-element__label"><abbr class="slds-required"
+                                            title="required">*</abbr> Select Objects</label>
+                                    <div class={scheduleRestoreObjectTriggerClass}
+                                        onclick={toggleScheduleRestoreObjectDropdown}>
+                                        <template if:true={hasSelectedObjects}>
+                                            <span class="ms-preview-text">{selectedObjectLabels}</span>
+                                            <span class="ms-badge">{selectedObjectsCount}</span>
+                                            <lightning-button-icon icon-name="utility:close" alternative-text="Clear"
+                                                variant="bare" size="small" onclick={clearObjects}>
+                                            </lightning-button-icon>
+                                        </template>
+                                        <template if:false={hasSelectedObjects}>
+                                            <span class="ms-placeholder">Choose Objects</span>
+                                            <lightning-icon icon-name="utility:down" size="x-small" class="ms-arrow">
+                                            </lightning-icon>
+                                        </template>
+                                    </div>
+                                    <template if:true={isScheduleRestoreObjectDropdownOpen}>
+                                        <div class="ms-dropdown slds-is-absolute">
+                                            <div class="ms-search" onclick={stopPropagation}>
+                                                <lightning-input type="search" variant="label-hidden"
+                                                    placeholder="Search objects..."
+                                                    value={scheduleRestoreObjectSearchTerm}
+                                                    onchange={handleScheduleRestoreObjectSearch}></lightning-input>
+                                            </div>
+                                            <div class="ms-select-all slds-is-relative" onclick={toggleSelectAllObjects}>
+                                                <template if:true={isSelectAllObjectsLoading}>
+                                                    <div class="ms-select-all-spinner slds-is-relative">
+                                                        <lightning-spinner alternative-text="Loading..." size="small"
+                                                            variant="brand"></lightning-spinner>
+                                                    </div>
+                                                </template>
+                                                <template if:false={isSelectAllObjectsLoading}>
+                                                    <span class={selectAllObjectsCheckboxClass}>
+                                                        <template if:true={isAllObjectsSelected}>
+                                                            <svg class="ms-check-icon"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                viewBox="0 0 24 24" fill="none"
+                                                                stroke="currentColor" stroke-width="3">
+                                                                <polyline points="20 6 9 17 4 12" />
+                                                            </svg>
+                                                        </template>
+                                                    </span>
+                                                    <span class="ms-item-label ms-select-all-label">Select All</span>
+                                                    <span class="ms-select-all-count">({rawObjectOptions.length})</span>
+                                                </template>
+                                            </div>
+                                            <ul class="ms-list">
+                                                <template if:true={hasFilteredScheduleRestoreObjects}>
+                                                    <template for:each={filteredScheduleRestoreObjects} for:item="obj">
+                                                        <li key={obj.value} class={obj.itemClass} data-value={obj.value}
+                                                            onclick={handleObjectToggle}>
+                                                            <span class={obj.checkboxClass}>
+                                                                <template if:true={obj.checked}>
+                                                                    <svg class="ms-check-icon"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="3">
+                                                                        <polyline points="20 6 9 17 4 12" />
+                                                                    </svg>
+                                                                </template>
+                                                            </span>
+                                                            <span class="ms-item-label">{obj.label}</span>
+                                                        </li>
+                                                    </template>
+                                                </template>
+                                                <template if:false={hasFilteredScheduleRestoreObjects}>
+                                                    <li class="ms-no-results">No objects found</li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="slds-col slds-size_1-of-2 slds-m-top_medium">
+                                <lightning-combobox label="Restore Time" placeholder="Select Time" value={restoreTime}
+                                    options={timeOptions} onchange={handleRestoreTime} required></lightning-combobox>
+                            </div>
+
+                            <!-- Records -->
+                            <div class="slds-col slds-size_1-of-2 slds-m-top_medium">
+                                <div class="multiselect-wrapper slds-is-relative">
+                                    <label class="slds-form-element__label">Select Records</label>
+                                    <template if:true={isLoadingScheduleRestoreRecords}>
+                                        <div class="slds-align_absolute-center slds-p-around_small">
+                                            <lightning-spinner alternative-text="Loading records..." size="small">
+                                            </lightning-spinner>
+                                        </div>
+                                    </template>
+                                    <template if:false={isLoadingScheduleRestoreRecords}>
+                                        <div class={scheduleRestoreRecordTriggerClass}
+                                            onclick={toggleScheduleRestoreRecordDropdown}>
+                                            <template if:true={hasSelectedScheduleRestoreRecords}>
+                                                <span
+                                                    class="ms-preview-text">{selectedScheduleRestoreRecordLabels}</span>
+                                                <span class="ms-badge">{selectedScheduleRestoreRecordsCount}</span>
+                                                <lightning-button-icon icon-name="utility:close"
+                                                    alternative-text="Clear" variant="bare" size="small"
+                                                    onclick={clearScheduleRestoreRecords}></lightning-button-icon>
+                                            </template>
+                                            <template if:false={hasSelectedScheduleRestoreRecords}>
+                                                <span class="ms-placeholder">
+                                                   <template if:true={noScheduleRestoreRecordsAvailable}>
+                                                        No Records available
+                                                    </template>
+                                                         <template if:false={noScheduleRestoreRecordsAvailable}>
+                                                            <template if:true={isMultipleObjectsSelected}>
+                                                                 Multiple objects selected
+                                                            </template>
+                                                                 <template if:false={isMultipleObjectsSelected}>
+                                                                    <template if:true={hasSelectedObjects}>
+                                                                        Choose Records
+                                                                    </template>
+                                                                         <template if:false={hasSelectedObjects}>
+                                                                            Select an Object to Continue
+                                                                        </template>
+                                                                </template>
+                                                        </template>
+                                                </span>
+                                                <lightning-icon icon-name="utility:down" size="x-small"
+                                                    class="ms-arrow"></lightning-icon>
+                                            </template>
+                                        </div>
+                                    </template>
+                                    <template if:true={noScheduleRestoreRecordsAvailable}>
+                                        <p class="slds-text-body_small slds-text-color_error slds-m-top_xx-small">
+                                            <lightning-icon icon-name="utility:error" size="xx-small"
+                                                class="slds-m-right_xx-small"></lightning-icon>
+                                            No Records available
+                                        </p>
+                                    </template>
+                                    <template if:true={isMultipleObjectsSelected}>
+                                        <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                            <lightning-icon icon-name="utility:info" size="xx-small"
+                                                class="slds-m-right_xx-small"></lightning-icon>
+                                            Record selection unavailable when multiple objects are selected.
+                                        </p>
+                                    </template>
+                                    <template if:true={isScheduleRestoreRecordDropdownOpen}>
+                                        <div class="ms-dropdown slds-is-absolute">
+                                            <div class="ms-search" onclick={stopPropagation}>
+                                                <lightning-input type="search" variant="label-hidden"
+                                                    placeholder="Search records..."
+                                                    value={scheduleRestoreRecordSearchTerm}
+                                                    onchange={handleScheduleRestoreRecordSearch}></lightning-input>
+                                            </div>
+                                            <div class="ms-select-all slds-is-relative" onclick={toggleSelectAllScheduleRestoreRecords}>
+                                                <template if:true={isSelectAllScheduleRestoreRecordsLoading}>
+                                                    <div class="ms-select-all-spinner slds-is-relative">
+                                                        <lightning-spinner alternative-text="Loading..." size="small"
+                                                            variant="brand"></lightning-spinner>
+                                                    </div>
+                                                </template>
+                                                <template if:false={isSelectAllScheduleRestoreRecordsLoading}>
+                                                    <span class={selectAllScheduleRestoreCheckboxClass}>
+                                                        <template if:true={isAllScheduleRestoreRecordsSelected}>
+                                                            <svg class="ms-check-icon"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                viewBox="0 0 24 24" fill="none"
+                                                                stroke="currentColor" stroke-width="3">
+                                                                <polyline points="20 6 9 17 4 12" />
+                                                            </svg>
+                                                        </template>
+                                                    </span>
+                                                    <span class="ms-item-label ms-select-all-label">Select All</span>
+                                                    <span
+                                                        class="ms-select-all-count">({rawScheduleRestoreRecordOptions.length})</span>
+                                                </template>
+                                            </div>
+                                            <ul class="ms-list">
+                                                <template if:true={hasFilteredScheduleRestoreRecords}>
+                                                    <template for:each={filteredScheduleRestoreRecords} for:item="rec">
+                                                        <li key={rec.value} class={rec.itemClass} data-value={rec.value}
+                                                            onclick={handleScheduleRestoreRecordToggle}>
+                                                            <span class={rec.checkboxClass}>
+                                                                <template if:true={rec.checked}>
+                                                                    <svg class="ms-check-icon"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="3">
+                                                                        <polyline points="20 6 9 17 4 12" />
+                                                                    </svg>
+                                                                </template>
+                                                            </span>
+                                                            <span class="ms-item-label">{rec.label}</span>
+                                                        </li>
+                                                    </template>
+                                                </template>
+                                                <template if:false={hasFilteredScheduleRestoreRecords}>
+                                                    <li class="ms-no-results">No records found</li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- File Datatable -->
+                        <template if:true={showScheduleRestoreFileTable}>
+                            <div class="slds-m-top_medium">
+                                <template if:true={isLoadingScheduleRestoreFiles}>
+                                    <div class="slds-align_absolute-center slds-p-around_medium">
+                                        <lightning-spinner alternative-text="Loading files..." size="small">
+                                        </lightning-spinner>
+                                    </div>
+                                </template>
+                                <template if:false={isLoadingScheduleRestoreFiles}>
+                                    <template if:true={hasScheduleRestoreFiles}>
+                                        <lightning-datatable key-field="Id" data={scheduleRestoreFileList}
+                                            columns={fileColumns} selected-rows={selectedScheduleFileIds}
+                                            onrowselection={handleScheduleFileSelection}>
+                                        </lightning-datatable>
+                                    </template>
+                                    <template if:false={hasScheduleRestoreFiles}>
+                                        <div class="slds-text-align_center slds-text-color_weak slds-p-around_medium">
+                                            <p class="slds-text-body_regular">No files found for selected records.
+                                            </p>
+                                        </div>
+                                    </template>
+                                </template>
+                            </div>
+                        </template>
+
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" onclick={handleScheduleRestoreBack}></lightning-button>
+                    <lightning-button label="Start" variant="brand" disabled={isScheduleRestoreStartDisabled}
+                        onclick={confirmScheduleRestore}></lightning-button>
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+    <template if:true={showJobSection}>
+        <!-- ── Job Status Table ── -->
+        <div class="slds-card slds-m-bottom_medium job-status-card">
+            <div class="job-status-header">
+                <span class="job-status-title">Running Jobs</span>
+                <span class="job-status-badge">{jobRows.length}</span>
+            </div>
+
+            <div class="job-status-body">
+                <template if:true={hasJobRows}>
+                    <lightning-datatable key-field="jobId" data={jobRows} columns={jobColumns} hide-checkbox-column
+                        show-row-number-column resize-column-disabled onrowaction={handleRowAction}>
+                    </lightning-datatable>
+                </template>
+
+            </div>
+        </div>
+    </template>
+</template>

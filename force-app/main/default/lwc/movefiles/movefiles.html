@@ -1,0 +1,182 @@
+<template>
+    <div class="container">
+        <div class="custom-card">
+            <div class="custom-card-header slds-grid slds-grid_align-spread slds-p-around_small">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <lightning-icon icon-name="custom:custom63" size="small"></lightning-icon>
+                    </div>
+                    <div class="slds-media__body slds-m-left_small">
+                        <h2 class="slds-text-heading_small slds-text-title_bold">Move Files</h2>
+                    </div>
+                </div>
+                <div class="slds-button-group" role="group"></div>
+            </div>
+        </div>
+
+        <!-- Target Object Dropdown -->
+        <div class="section-spacing">
+            <label class="slds-form-element__label">
+                <abbr class="slds-required" title="required">*</abbr>
+                Target Object
+            </label>
+            <div class={targetObjectWrapperClass}>
+                <div class="slds-form-element__control">
+                    <lightning-combobox variant="label-hidden" value={targetObjectApiName} options={objectOptions}
+                        onchange={handleTargetObjectChange} onblur={handleTargetObjectBlur}>
+                    </lightning-combobox>
+                </div>
+            </div>
+            <template if:true={targetObjectError}>
+                <p class="filter-error-text slds-is-relative slds-m-top_xx-small">
+                    <lightning-icon icon-name="utility:error" size="xx-small" variant="error"></lightning-icon>
+                    &nbsp;{targetObjectError}
+                </p>
+            </template>
+        </div>
+
+
+        <!-- Search & Select Record -->
+       <template if:true={targetObjectApiName}>
+    <template if:false={targetRecordId}>
+        <div class="section-spacing">
+            <label class="slds-form-element__label">
+                <abbr class="slds-required" title="required">*</abbr>
+                Search Records
+            </label>
+            <div class={searchWrapperClass}>
+                <lightning-input variant="label-hidden" type="search" value={searchKey} class={searchInputClass}
+                    onchange={handleSearchKeyChange} disabled={isSearchDisabled} onblur={handleSearchBlur}>
+                </lightning-input>
+            </div>
+            <template if:true={targetRecordError}>
+                <p class="filter-error-text slds-is-relative slds-m-top_xx-small">
+                    <lightning-icon icon-name="utility:error" size="xx-small" variant="error"></lightning-icon>
+                    &nbsp;{targetRecordError}
+                </p>
+            </template>
+        </div>
+
+                <!-- This object does not support file attachments. -->
+                <template if:true={hasNoFiles}>
+                    <div class="section-spacing">
+                        <p class="slds-text-color_error slds-text-body_small">
+                            File/Attachment is not supported for this object.
+                        </p>
+                    </div>
+                </template>
+
+                <!-- No records exist in this object -->
+                <template if:true={noRecordsFound}>
+                    <div class="section-spacing">
+                        <p class="slds-text-color_error slds-text-body_small">
+                            No records found for this object.
+                        </p>
+                    </div>
+                </template>
+
+                <template if:true={searchResults.length}>
+                    <ul class="search-results-wrapper section-spacing" onmouseleave={handleSearchMouseLeave}>
+                        <template for:each={searchResults} for:item="record">
+                            <li key={record.value} class={record.itemClass} data-id={record.value}
+                                data-disabled={record.isDisabled} onmousedown={handleSelectRecord}>
+                                {record.label}
+                                <template if:true={record.isDisabled}>
+                                    <span class="same-record-label"> (Current Record)</span>
+                                </template>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+            </template>
+
+            <template if:true={targetRecordId}>
+                <div class="selected-contact-wrapper section-spacing">
+                    <label class="slds-form-element__label">
+                        <abbr class="slds-required" title="required">*</abbr>
+                        Target Record
+                    </label>
+                    <div class="selected-contact-box">
+                        <span class="contact-name">{selectedRecordName}</span>
+                        <button class="slds-button close-contact-btn" onclick={resetSelectedContact}>
+                            <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </template>
+
+        <!-- File Dropdown -->
+        <div class={sourceFilesWrapperClass}>
+            <label class={sourceFilesLabelClass}>
+                <abbr class="slds-required" title="required">*</abbr>
+                Source Files
+            </label>
+            <div class="custom-dropdown">
+            <div class={dropdownBoxClass} onclick={handleDropdownClick}>
+                <div class="selected-values">
+                    <template if:true={selectedFileNames}>
+                        <span>{selectedFileNames}</span>
+                    </template>
+                    <template if:false={selectedFileNames}>
+                        <span>-- Select Files --</span>
+                    </template>
+                </div>
+                <lightning-icon icon-name="utility:down" size="x-small"></lightning-icon>
+            </div>
+
+            <template if:true={dropdownOpen}>
+                <div class="dropdown-options">
+                    <template for:each={fileDropdownOptions} for:item="file">
+                        <div key={file.value} class="dropdown-option" data-id={file.value} onclick={handleOptionClick}>
+                            <span>{file.label}</span>
+                            <template if:true={file.selected}>
+                                <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- error text -->
+            <template if:true={sourceFileError}>
+                <p class="filter-error-text slds-is-relative slds-m-top_xx-small">
+                    <lightning-icon icon-name="utility:error" size="xx-small" variant="error"></lightning-icon>
+                    &nbsp;{sourceFileError}
+                </p>
+            </template>
+        </div>
+        </div>
+
+        <!-- File Pills -->
+        <div class="selected-values slds-grid slds-wrap section-spacing">
+            <template if:true={selectedFileNamesArray.length}>
+                <template for:each={selectedFileNamesArray} for:item="file">
+                    <div key={file.id} class="file-pill">
+                        <lightning-icon icon-name="doctype:image" size="xx-small" class="file-icon">
+                        </lightning-icon>
+                        <a href="javascript:void(0);" class="file-name">{file.name}</a>
+                        <button class="remove-btn" data-id={file.id} onclick={handleRemoveSingleFile}>
+                            <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                        </button>
+                    </div>
+                </template>
+            </template>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons section-spacing">
+            <div class="selection-actions slds-text-body_small">
+                <a href="javascript:void(0);" class={selectAllClass} onclick={handleSelectAll}>Select all</a>
+                <a href="javascript:void(0);" class={clearClass} onclick={handleClearSelection}>Clear</a>
+            </div>
+
+            <div class="slds-m-top_small slds-align_absolute-center">
+                <lightning-button variant="brand" label="Move" onclick={handleMoveFiles} disabled={isMoveDisabled}
+                    class="slds-m-right_small">
+                </lightning-button>
+                <lightning-button variant="neutral" label="Cancel" onclick={handleCancel}></lightning-button>
+            </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,68 @@
+<template>
+
+    <!-- Page Header -->
+    <div class="slds-p-bottom_xx-small">
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon class="icon" icon-name="standard:file" alternative-text="AWS Setting">
+                            </lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h1 class="header">
+                                <span class="slds-page-header__title slds-truncate" title="AWS Setting">AWS Setting</span>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <lightning-card>
+        <div class="aws-setting">
+            Welcome to our <span class="highlight">AWS S3 Configuration Page</span>, a simple-to-use portal that lets you quickly change AWS S3 access settings.
+        </div>
+
+        <template if:false={showForm}>
+            <div class="aws-description">
+                You may customize your AWS S3 experience by easily editing and securely saving these settings with a click.
+            </div>
+            <div class="slds-m-around_medium button-container">
+                <lightning-button label="Configure Now" variant="brand" onclick={navigateToConfig}></lightning-button>
+            </div>
+        </template>
+
+        <template if:true={showForm}>
+            <div class="slds-p-around_medium">
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-around_x-small">
+                        <lightning-input label="AWS S3 Access Key Id" type="password" value={accessKeyId} onchange={handleAccessKeyIdChange} disabled={fieldDisable} required="true"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-around_x-small">
+                        <lightning-input label="AWS S3 Secret Access Key" type="password" value={secretAccessKey} onchange={handleSecretAccessKeyChange} disabled={fieldDisable} required="true"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-around_x-small">
+                        <lightning-input label="AWS S3 Bucket Name" value={s3BucketName} onchange={handleS3BucketNameChange} disabled={fieldDisable} required="true"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-around_x-small">
+                        <lightning-input label="AWS S3 Region Name" value={s3RegionName} onchange={handleS3RegionNameChange} disabled={fieldDisable} required="true"></lightning-input>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-p-around_x-small slds-m-top_medium btnCss">
+                        <template if:false={saveButton}>
+                            <template if:true={button}>
+                                <lightning-button label="Edit" variant="brand" onclick={editCustomMetadata} class="slds-m-right_small"></lightning-button>
+                            </template>
+                        </template>
+                        <template if:true={saveButton}>
+                            <lightning-button label="Save" variant="brand" onclick={saveCustomMetadata} class="slds-m-right_small"></lightning-button>
+                            <lightning-button label="Cancel" onclick={cancelButton}></lightning-button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </lightning-card>
+</template>

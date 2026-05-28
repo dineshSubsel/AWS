@@ -1,0 +1,29 @@
+.custom-card {
+    border: 1px solid #d8dde6;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.10); 
+}
+
+.custom-input {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.custom-button {
+    background-color: white;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 10px 10px;
+    border-radius: 10px;
+}
+.custom-button .slds-button__label {
+    color: black;
+    padding: 14px;
+}
+
+.slds-modal__content{
+    font-size: 14px;
+    padding: 18px 18px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}

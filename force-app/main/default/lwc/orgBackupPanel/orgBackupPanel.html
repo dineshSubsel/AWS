@@ -1,0 +1,706 @@
+<template>
+    <lightning-card>
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+
+            <!-- ═══ STEP 1: Action Selection ═══ -->
+            <template if:true={showOptionSelection}>
+                <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">Select an option</div>
+                <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center">
+                    <div class="option-item">
+                        <lightning-input type="radio" variant="label-hidden" name="action" value="backup"
+                            checked={isBackupSelected} onchange={handleSelection}></lightning-input>
+                        <span class="option-label">Backup</span>
+                        <lightning-helptext content="Backup your org data, metadata, config or full org"></lightning-helptext>
+                    </div>
+                    <div class="or-text slds-m-horizontal_large">or</div>
+                    <div class="option-item">
+                        <lightning-input type="radio" variant="label-hidden" name="action" value="restore"
+                            checked={isRestoreSelected} onchange={handleSelection}></lightning-input>
+                        <span class="option-label">Restore</span>
+                        <lightning-helptext content="Restore previously backed up content"></lightning-helptext>
+                    </div>
+                </div>
+                <div class="slds-text-align_right slds-m-top_large">
+                    <lightning-button label="Next" variant="brand" disabled={isNextDisabled} onclick={handleNext}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ STEP 2 BACKUP: Instant / Schedule Backup ═══ -->
+            <template if:true={showBackupModeSelection}>
+                <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">Select Backup Mode</div>
+                <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center">
+                    <div class="option-item">
+                        <lightning-input type="radio" variant="label-hidden" name="backupMode" value="instant"
+                            checked={isInstantModeSelected} onchange={handleBackupModeChange}></lightning-input>
+                        <span class="option-label">Instant Backup</span>
+                        <lightning-helptext content="Run backup immediately, one time only"></lightning-helptext>
+                    </div>
+                    <div class="or-text slds-m-horizontal_large">or</div>
+                    <div class="option-item">
+                        <lightning-input type="radio" variant="label-hidden" name="backupMode" value="schedule"
+                            checked={isScheduleModeSelected} onchange={handleBackupModeChange}></lightning-input>
+                        <span class="option-label">Schedule Backup</span>
+                        <lightning-helptext content="Schedule recurring backup (Daily / Weekly / Monthly)"></lightning-helptext>
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" onclick={handleBackupModeBack}></lightning-button>
+                    <lightning-button label="Next" variant="brand" disabled={isBackupModeNextDisabled} onclick={handleBackupModeNext}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ STEP 2 RESTORE: Instant / Schedule Restore ═══ -->
+            <template if:true={showRestoreModeSelection}>
+                <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">Select Restore Mode</div>
+                <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center">
+                    <div class="option-item">
+                        <lightning-input type="radio" variant="label-hidden" name="restoreMode" value="instant"
+                            checked={isInstantRestoreModeSelected} onchange={handleRestoreModeChange}></lightning-input>
+                        <span class="option-label">Instant Restore</span>
+                        <lightning-helptext content="Run restore immediately, one time only"></lightning-helptext>
+                    </div>
+                    <div class="or-text slds-m-horizontal_large">or</div>
+                    <div class="option-item">
+                        <lightning-input type="radio" variant="label-hidden" name="restoreMode" value="schedule"
+                            checked={isScheduleRestoreModeSelected} onchange={handleRestoreModeChange}></lightning-input>
+                        <span class="option-label">Schedule Restore</span>
+                        <lightning-helptext content="Schedule recurring restore (Daily / Weekly / Monthly)"></lightning-helptext>
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" onclick={handleRestoreModeBack}></lightning-button>
+                    <lightning-button label="Next" variant="brand" disabled={isRestoreModeNextDisabled} onclick={handleRestoreModeNext}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ STEP 3 BACKUP: Backup Type Cards ═══ -->
+            <template if:true={showBackupTypeSelection}>
+                <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">Select Backup Type</div>
+                <div class="slds-grid slds-gutters slds-wrap slds-grid_align-center">
+                    <div class="slds-col slds-size_1-of-2 slds-large-size_1-of-4 slds-p-around_x-small">
+                        <div class={backupTypeDataClass} onclick={handleBackupTypeSelect} data-type="data">
+                            <div class="type-card-icon"><lightning-icon icon-name="standard:record" size="medium"></lightning-icon></div>
+                            <div class="type-card-title">Data Backup</div>
+                            <div class="type-card-desc">Back up records across standard and custom objects. Supports selective record filtering, related file attachments, and scheduled exports.</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2 slds-large-size_1-of-4 slds-p-around_x-small">
+                        <div class={backupTypeMetadataClass} onclick={handleBackupTypeSelect} data-type="metadata">
+                            <div class="type-card-icon"><lightning-icon icon-name="standard:apex" size="medium"></lightning-icon></div>
+                            <div class="type-card-title">Metadata Backup</div>
+                            <div class="type-card-desc">Capture your org's configuration layer — Apex classes, Lightning components, Flows, Profiles, Permission Sets, page layouts, and more.</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2 slds-large-size_1-of-4 slds-p-around_x-small">
+                        <div class={backupTypeConfigClass} onclick={handleBackupTypeSelect} data-type="config">
+                            <div class="type-card-icon"><lightning-icon icon-name="standard:settings" size="medium"></lightning-icon></div>
+                            <div class="type-card-title">Config Backup</div>
+                            <div class="type-card-desc">Save critical operational settings including Custom Metadata Types, Custom Settings, Named Credentials, Remote Site Settings, and Email Templates.</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2 slds-large-size_1-of-4 slds-p-around_x-small">
+                        <div class={backupTypeOrgfullClass} onclick={handleBackupTypeSelect} data-type="orgfull">
+                            <div class="type-card-icon"><lightning-icon icon-name="standard:all" size="medium"></lightning-icon></div>
+                            <div class="type-card-title">Org Full Backup</div>
+                            <div class="type-card-desc">A complete snapshot of your entire Salesforce org — combining Data, Metadata, and Config. Perfect for disaster recovery or org migration.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" onclick={handleBackupTypeBack}></lightning-button>
+                    <lightning-button label="Next" variant="brand" disabled={isBackupTypeNextDisabled} onclick={handleBackupTypeNext}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ DATA BACKUP ═══ -->
+            <template if:true={showDataBackup}>
+                <div class="metadata-header">
+                    <div class="icon-section"><lightning-icon icon-name="standard:record" size="medium"></lightning-icon></div>
+                    <div class="slds-text-heading_small custom-heading">Data Backup</div>
+                </div>
+                <div class="slds-grid slds-wrap slds-grid_align-center">
+                    <div class="slds-col slds-size_10-of-12">
+                        <div class="slds-grid slds-gutters">
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="multiselect-wrapper slds-is-relative">
+                                    <label class="slds-form-element__label"><abbr class="slds-required" title="required">*</abbr> Select Objects</label>
+                                    <div class={backupObjectTriggerClass} onclick={fireToggleBackupObjectDropdown}>
+                                        <template if:true={hasBackupSelectedObjects}>
+                                            <span class="ms-preview-text">{backupSelectedObjectLabels}</span>
+                                            <span class="ms-badge">{backupSelectedObjectsCount}</span>
+                                            <lightning-button-icon icon-name="utility:close" alternative-text="Clear" variant="bare" size="small" onclick={fireClearBackupObjects}></lightning-button-icon>
+                                        </template>
+                                        <template if:false={hasBackupSelectedObjects}>
+                                            <span class="ms-placeholder">Choose Objects</span>
+                                            <lightning-icon icon-name="utility:down" size="x-small" class="ms-arrow"></lightning-icon>
+                                        </template>
+                                    </div>
+                                    <template if:true={isBackupObjectDropdownOpen}>
+                                        <div class="ms-dropdown slds-is-absolute">
+                                            <div class="ms-search" onclick={stopProp}>
+                                                <lightning-input type="search" variant="label-hidden" placeholder="Search objects..." value={backupObjectSearchTerm} onchange={fireBackupObjectSearch}></lightning-input>
+                                            </div>
+                                            <div class="ms-select-all" onclick={fireSelectAllBackupObjects}>
+                                                <template if:true={isSelectAllBackupObjectsLoading}>
+                                                    <div class="ms-select-all-spinner"><lightning-spinner alternative-text="Loading..." size="small" variant="brand"></lightning-spinner></div>
+                                                </template>
+                                                <template if:false={isSelectAllBackupObjectsLoading}>
+                                                    <span class={selectAllBackupObjectsCheckboxClass}>
+                                                        <template if:true={isAllBackupObjectsSelected}>
+                                                            <svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                                        </template>
+                                                    </span>
+                                                    <span class="ms-item-label ms-select-all-label">Select All</span>
+                                                    <span class="ms-select-all-count">({rawObjectOptionsCount})</span>
+                                                </template>
+                                            </div>
+                                            <ul class="ms-list">
+                                                <template if:true={hasFilteredBackupObjects}>
+                                                    <template for:each={filteredBackupObjects} for:item="obj">
+                                                        <li key={obj.value} class={obj.itemClass} data-value={obj.value} onclick={fireBackupObjectToggle}>
+                                                            <span class={obj.checkboxClass}><template if:true={obj.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template></span>
+                                                            <span class="ms-item-label">{obj.label}</span>
+                                                        </li>
+                                                    </template>
+                                                </template>
+                                                <template if:false={hasFilteredBackupObjects}><li class="ms-no-results">No objects found</li></template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="multiselect-wrapper slds-is-relative">
+                                    <label class="slds-form-element__label">Select Records</label>
+                                    <template if:true={isLoadingBackupRecords}>
+                                        <div class="slds-align_absolute-center slds-p-around_small"><lightning-spinner alternative-text="Loading records..." size="small"></lightning-spinner></div>
+                                    </template>
+                                    <template if:false={isLoadingBackupRecords}>
+                                        <div class="record-field-wrapper">
+                                            <div class={computedBackupRecordClass} onclick={fireBackupRecordClick}>
+                                                <template if:true={hasBackupSelectedRecords}>
+                                                    <span class="ms-preview-text">{backupSelectedRecordLabels}</span>
+                                                    <span class="ms-badge">{backupSelectedRecordsCount}</span>
+                                                    <lightning-button-icon icon-name="utility:close" alternative-text="Clear" variant="bare" size="small" onclick={fireClearBackupRecords}></lightning-button-icon>
+                                                </template>
+                                                <template if:false={hasBackupSelectedRecords}>
+                                                    <span class="ms-placeholder">
+                                                        <template if:true={isBackupMultipleObjects}>Multiple objects selected</template>
+                                                        <template if:false={isBackupMultipleObjects}>Choose Records</template>
+                                                    </span>
+                                                    <lightning-icon icon-name="utility:down" size="x-small" class="ms-arrow"></lightning-icon>
+                                                </template>
+                                            </div>
+                                            <template if:true={noDataRecordsAvailable}>
+                                                <div class="error-text">
+                                                    <lightning-icon icon-name="utility:error" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>No Records available.
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                                <template if:true={isBackupMultipleObjects}>
+                                    <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                        <lightning-icon icon-name="utility:info" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>Record selection unavailable when multiple objects are selected.
+                                    </p>
+                                </template>
+                            </div>
+                        </div>
+                        <template if:true={isScheduleMode}>
+                            <div class="schedule-section slds-m-top_medium">
+                                <div class="schedule-section-title"><lightning-icon icon-name="utility:clock" size="x-small" class="slds-m-right_x-small"></lightning-icon>Scheduling Frequency</div>
+                                <div class="schedule-options">
+                                    <div class={scheduleDailyClass} data-freq="daily" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Daily</div><div class="schedule-option-desc">Runs every day at a set time</div></div></div>
+                                    <div class={scheduleWeeklyClass} data-freq="weekly" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Weekly</div><div class="schedule-option-desc">Runs once per week on a set day</div></div></div>
+                                    <div class={scheduleMonthlyClass} data-freq="monthly" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Monthly</div><div class="schedule-option-desc">Runs once per month on a set date</div></div></div>
+                                </div>
+                                <template if:true={showScheduleTimeField}>
+                                    <div class="schedule-fields slds-m-top_small">
+                                        <lightning-input type="time" label="Start Time" value={scheduleTime} onchange={fireScheduleTimeChange} class="schedule-time-input"></lightning-input>
+                                        <template if:true={showScheduleWeekday}><lightning-combobox label="Day of Week" value={scheduleWeekday} options={weekdayOptions} onchange={fireWeekdayChange} class="schedule-combo-input"></lightning-combobox></template>
+                                        <template if:true={showScheduleMonthDay}><lightning-input type="number" label="Day of Month" value={scheduleMonthDay} min="1" max="28" onchange={fireMonthDayChange} class="schedule-combo-input"></lightning-input></template>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" onclick={handleDataBack}></lightning-button>
+                    <lightning-button label="Start Backup" variant="brand" disabled={isDataBackupDisabled} onclick={fireStartDataBackup}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ METADATA BACKUP (inlined split-panel) ═══ -->
+            <template if:true={showMetadataBackup}>
+                <div class="metadata-header">
+                    <div class="icon-section"><lightning-icon icon-name="standard:apex" size="medium"></lightning-icon></div>
+                    <div class="slds-text-heading_small custom-heading">Metadata Backup</div>
+                </div>
+                <div class="split-panel">
+                    <div class="split-nav">
+                        <template for:each={metadataNavTree} for:item="grp">
+                            <div key={grp.key} class={grp.groupClass} data-key={grp.key} onclick={handleMetadataNavClick}>
+                                <div class="split-nav-group-header">
+                                    <span class={grp.checkboxClass} data-key={grp.key} onclick={fireMetadataGroupCheckbox}>
+                                        <template if:true={grp.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                    </span>
+                                    <span class="split-nav-label">{grp.label}</span>
+                                    <lightning-icon icon-name="utility:chevronright" size="x-small" class="split-nav-chevron"></lightning-icon>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="split-panel-content">
+                        <template if:true={isLoadingActivePanel}>
+                            <div class="slds-align_absolute-center slds-p-around_large"><lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner></div>
+                        </template>
+                        <template if:false={isLoadingActivePanel}>
+                            <template if:true={hasActivePanelItems}>
+                                <div class="split-panel-toolbar">
+                                    <span class="split-panel-count">{activePanelTotal} items</span>
+                                    <span class={selectAllPanelCheckboxClass} onclick={fireToglleAllMetadataPanel}>
+                                        <template if:true={isActivePanelAllSelected}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                    </span>
+                                    <span class="split-panel-select-all-label">Select All</span>
+                                    <template if:true={showPanelSearchBar}>
+                                        <lightning-input type="search" variant="label-hidden" placeholder="Search..." value={panelSearchTerm} onchange={firePanelSearch} class="split-panel-search"></lightning-input>
+                                    </template>
+                                </div>
+                                <ul class="split-panel-list">
+                                    <template for:each={activePanelItems} for:item="item">
+                                        <li key={item.value} class={item.itemClass} data-value={item.value} onclick={firePanelItemToggle}>
+                                            <span class={item.checkboxClass}><template if:true={item.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template></span>
+                                            <span class="split-panel-item-label">{item.label}</span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template if:false={hasActivePanelItems}>
+                                <div class="split-panel-empty">Select a group to view items</div>
+                            </template>
+                        </template>
+                    </div>
+                </div>
+                <template if:true={isScheduleMode}>
+                    <div class="schedule-section slds-m-top_medium">
+                        <div class="schedule-section-title"><lightning-icon icon-name="utility:clock" size="x-small" class="slds-m-right_x-small"></lightning-icon>Scheduling Frequency</div>
+                        <div class="schedule-options">
+                            <div class={scheduleDailyClass} data-freq="daily" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Daily</div><div class="schedule-option-desc">Runs every day at a set time</div></div></div>
+                            <div class={scheduleWeeklyClass} data-freq="weekly" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Weekly</div><div class="schedule-option-desc">Runs once per week on a set day</div></div></div>
+                            <div class={scheduleMonthlyClass} data-freq="monthly" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Monthly</div><div class="schedule-option-desc">Runs once per month on a set date</div></div></div>
+                        </div>
+                        <template if:true={showScheduleTimeField}>
+                            <div class="schedule-fields slds-m-top_small">
+                                <lightning-input type="time" label="Start Time" value={scheduleTime} onchange={fireScheduleTimeChange} class="schedule-time-input"></lightning-input>
+                                <template if:true={showScheduleWeekday}><lightning-combobox label="Day of Week" value={scheduleWeekday} options={weekdayOptions} onchange={fireWeekdayChange} class="schedule-combo-input"></lightning-combobox></template>
+                                <template if:true={showScheduleMonthDay}><lightning-input type="number" label="Day of Month" value={scheduleMonthDay} min="1" max="28" onchange={fireMonthDayChange} class="schedule-combo-input"></lightning-input></template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_medium">
+                    <lightning-button label="Back" onclick={handleMetadataBack}></lightning-button>
+                    <lightning-button label="Start Backup" variant="brand" disabled={isMetadataBackupDisabled} onclick={fireStartMetadataBackup}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ CONFIG BACKUP (inlined split-panel) ═══ -->
+            <template if:true={showConfigBackup}>
+                <div class="metadata-header">
+                    <div class="icon-section"><lightning-icon icon-name="standard:settings" size="medium"></lightning-icon></div>
+                    <div class="slds-text-heading_small custom-heading">Config Backup</div>
+                </div>
+                <div class="split-panel">
+                    <div class="split-nav">
+                        <template for:each={configNavTree} for:item="grp">
+                            <div key={grp.key} class={grp.groupClass} data-key={grp.key} onclick={handleConfigNavClick}>
+                                <div class="split-nav-group-header">
+                                    <span class={grp.checkboxClass} data-key={grp.key} onclick={fireConfigGroupCheckbox}>
+                                        <template if:true={grp.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                    </span>
+                                    <span class="split-nav-label">{grp.label}</span>
+                                    <lightning-icon icon-name="utility:chevronright" size="x-small" class="split-nav-chevron"></lightning-icon>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="split-panel-content">
+                        <template if:true={isLoadingActivePanel}>
+                            <div class="slds-align_absolute-center slds-p-around_large"><lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner></div>
+                        </template>
+                        <template if:false={isLoadingActivePanel}>
+                            <template if:true={hasActivePanelItems}>
+                                <div class="split-panel-toolbar">
+                                    <span class="split-panel-count">{activePanelTotal} items</span>
+                                    <span class={selectAllPanelCheckboxClass} onclick={fireToggleAllConfigPanel}>
+                                        <template if:true={isActivePanelAllSelected}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                    </span>
+                                    <span class="split-panel-select-all-label">Select All</span>
+                                    <template if:true={showPanelSearchBar}>
+                                        <lightning-input type="search" variant="label-hidden" placeholder="Search..." value={panelSearchTerm} onchange={firePanelSearch} class="split-panel-search"></lightning-input>
+                                    </template>
+                                </div>
+                                <ul class="split-panel-list">
+                                    <template for:each={activePanelItems} for:item="item">
+                                        <li key={item.value} class={item.itemClass} data-value={item.value} onclick={firePanelItemToggle}>
+                                            <span class={item.checkboxClass}><template if:true={item.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template></span>
+                                            <span class="split-panel-item-label">{item.label}</span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template if:false={hasActivePanelItems}>
+                                <div class="split-panel-empty">Select a group to view items</div>
+                            </template>
+                        </template>
+                    </div>
+                </div>
+                <template if:true={isScheduleMode}>
+                    <div class="schedule-section slds-m-top_medium">
+                        <div class="schedule-section-title"><lightning-icon icon-name="utility:clock" size="x-small" class="slds-m-right_x-small"></lightning-icon>Scheduling Frequency</div>
+                        <div class="schedule-options">
+                            <div class={scheduleDailyClass} data-freq="daily" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Daily</div><div class="schedule-option-desc">Runs every day at a set time</div></div></div>
+                            <div class={scheduleWeeklyClass} data-freq="weekly" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Weekly</div><div class="schedule-option-desc">Runs once per week on a set day</div></div></div>
+                            <div class={scheduleMonthlyClass} data-freq="monthly" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Monthly</div><div class="schedule-option-desc">Runs once per month on a set date</div></div></div>
+                        </div>
+                        <template if:true={showScheduleTimeField}>
+                            <div class="schedule-fields slds-m-top_small">
+                                <lightning-input type="time" label="Start Time" value={scheduleTime} onchange={fireScheduleTimeChange} class="schedule-time-input"></lightning-input>
+                                <template if:true={showScheduleWeekday}><lightning-combobox label="Day of Week" value={scheduleWeekday} options={weekdayOptions} onchange={fireWeekdayChange} class="schedule-combo-input"></lightning-combobox></template>
+                                <template if:true={showScheduleMonthDay}><lightning-input type="number" label="Day of Month" value={scheduleMonthDay} min="1" max="28" onchange={fireMonthDayChange} class="schedule-combo-input"></lightning-input></template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_medium">
+                    <lightning-button label="Back" onclick={handleConfigBack}></lightning-button>
+                    <lightning-button label="Start Backup" variant="brand" disabled={isConfigBackupDisabled} onclick={fireStartConfigBackup}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ ORG FULL BACKUP (inlined split-panel) ═══ -->
+            <template if:true={showOrgFullBackup}>
+                <div class="metadata-header">
+                    <div class="icon-section"><lightning-icon icon-name="standard:all" size="medium"></lightning-icon></div>
+                    <div class="slds-text-heading_small custom-heading">Org Full Backup</div>
+                </div>
+                <div class="split-panel">
+                    <div class="split-nav">
+                        <template for:each={orgFullNavTree} for:item="grp">
+                            <div key={grp.key} class={grp.groupClass} data-key={grp.key} onclick={handleOrgFullNavClick}>
+                                <div class="split-nav-group-header">
+                                    <span class={grp.checkboxClass} data-key={grp.key} onclick={fireOrgFullGroupCheckbox}>
+                                        <template if:true={grp.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                    </span>
+                                    <span class="split-nav-label">{grp.label}</span>
+                                    <lightning-icon icon-name="utility:chevronright" size="x-small" class="split-nav-chevron"></lightning-icon>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="split-panel-content">
+                        <template if:true={isLoadingActivePanel}>
+                            <div class="slds-align_absolute-center slds-p-around_large"><lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner></div>
+                        </template>
+                        <template if:false={isLoadingActivePanel}>
+                            <template if:true={hasActivePanelItems}>
+                                <div class="split-panel-toolbar">
+                                    <span class="split-panel-count">{activePanelTotal} items</span>
+                                    <span class={selectAllPanelCheckboxClass} onclick={fireToggleAllOrgFullPanel}>
+                                        <template if:true={isActivePanelAllSelected}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                    </span>
+                                    <span class="split-panel-select-all-label">Select All</span>
+                                    <template if:true={showPanelSearchBar}>
+                                        <lightning-input type="search" variant="label-hidden" placeholder="Search..." value={panelSearchTerm} onchange={firePanelSearch} class="split-panel-search"></lightning-input>
+                                    </template>
+                                </div>
+                                <ul class="split-panel-list">
+                                    <template for:each={activePanelItems} for:item="item">
+                                        <li key={item.value} class={item.itemClass} data-value={item.value} onclick={firePanelItemToggle}>
+                                            <span class={item.checkboxClass}><template if:true={item.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template></span>
+                                            <span class="split-panel-item-label">{item.label}</span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template if:false={hasActivePanelItems}>
+                                <div class="split-panel-empty">Select a group to view items</div>
+                            </template>
+                        </template>
+                    </div>
+                </div>
+                <template if:true={isScheduleMode}>
+                    <div class="schedule-section slds-m-top_medium">
+                        <div class="schedule-section-title"><lightning-icon icon-name="utility:clock" size="x-small" class="slds-m-right_x-small"></lightning-icon>Scheduling Frequency</div>
+                        <div class="schedule-options">
+                            <div class={scheduleDailyClass} data-freq="daily" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Daily</div><div class="schedule-option-desc">Runs every day at a set time</div></div></div>
+                            <div class={scheduleWeeklyClass} data-freq="weekly" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Weekly</div><div class="schedule-option-desc">Runs once per week on a set day</div></div></div>
+                            <div class={scheduleMonthlyClass} data-freq="monthly" onclick={fireScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Monthly</div><div class="schedule-option-desc">Runs once per month on a set date</div></div></div>
+                        </div>
+                        <template if:true={showScheduleTimeField}>
+                            <div class="schedule-fields slds-m-top_small">
+                                <lightning-input type="time" label="Start Time" value={scheduleTime} onchange={fireScheduleTimeChange} class="schedule-time-input"></lightning-input>
+                                <template if:true={showScheduleWeekday}><lightning-combobox label="Day of Week" value={scheduleWeekday} options={weekdayOptions} onchange={fireWeekdayChange} class="schedule-combo-input"></lightning-combobox></template>
+                                <template if:true={showScheduleMonthDay}><lightning-input type="number" label="Date of Month" value={scheduleMonthDay} min="1" max="28" onchange={fireMonthDayChange} class="schedule-combo-input"></lightning-input></template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_medium">
+                    <lightning-button label="Back" onclick={handleOrgFullBack}></lightning-button>
+                    <lightning-button label="Start Backup" variant="brand" disabled={isOrgFullBackupDisabled} onclick={fireStartOrgFullBackup}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ STEP 3 RESTORE: Restore Type Cards ═══ -->
+            <template if:true={showRestoreTypeSelection}>
+                <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">Select Restore Type</div>
+                <div class="slds-grid slds-gutters slds-wrap slds-grid_align-center">
+                    <div class="slds-col slds-size_1-of-2 slds-large-size_1-of-4 slds-p-around_x-small">
+                        <div class={restoreTypeDataClass} onclick={handleRestoreTypeSelect} data-type="data">
+                            <div class="type-card-icon"><lightning-icon icon-name="standard:record" size="medium"></lightning-icon></div>
+                            <div class="type-card-title">Data Restore</div>
+                            <div class="type-card-desc">Restore previously backed-up object records. Supports selective record filtering.</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2 slds-large-size_1-of-4 slds-p-around_x-small">
+                        <div class={restoreTypeMetadataClass} onclick={handleRestoreTypeSelect} data-type="metadata">
+                            <div class="type-card-icon"><lightning-icon icon-name="standard:apex" size="medium"></lightning-icon></div>
+                            <div class="type-card-title">Metadata Restore</div>
+                            <div class="type-card-desc">Restore Apex classes, Lightning components, Flows, Profiles, and Permission Sets from a previous backup.</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2 slds-large-size_1-of-4 slds-p-around_x-small">
+                        <div class={restoreTypeConfigClass} onclick={handleRestoreTypeSelect} data-type="config">
+                            <div class="type-card-icon"><lightning-icon icon-name="standard:settings" size="medium"></lightning-icon></div>
+                            <div class="type-card-title">Config Restore</div>
+                            <div class="type-card-desc">Restore Custom Metadata Types, Named Credentials, Remote Sites, and Email Templates.</div>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-2 slds-large-size_1-of-4 slds-p-around_x-small">
+                        <div class={restoreTypeOrgfullClass} onclick={handleRestoreTypeSelect} data-type="orgfull">
+                            <div class="type-card-icon"><lightning-icon icon-name="standard:all" size="medium"></lightning-icon></div>
+                            <div class="type-card-title">Org Full Restore</div>
+                            <div class="type-card-desc">Complete org restore combining Data, Metadata, and Config. Use for full disaster recovery or rollbacks.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" onclick={handleRestoreTypeBack}></lightning-button>
+                    <lightning-button label="Next" variant="brand" disabled={isRestoreTypeNextDisabled} onclick={handleRestoreTypeNext}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ RESTORE DATA ═══ -->
+            <template if:true={showRestoreData}>
+                <div class="metadata-header">
+                    <div class="icon-section"><lightning-icon icon-name="standard:record" size="medium"></lightning-icon></div>
+                    <div class="slds-text-heading_small custom-heading">Data Restore</div>
+                </div>
+                <div class="slds-grid slds-wrap slds-grid_align-center">
+                    <div class="slds-col slds-size_10-of-12">
+                        <div class="slds-grid slds-gutters">
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="multiselect-wrapper slds-is-relative">
+                                    <label class="slds-form-element__label"><abbr class="slds-required" title="required">*</abbr> Select Objects</label>
+                                    <div class={restoreDataObjectTriggerClass} onclick={fireToggleRestoreDataObjectDropdown}>
+                                        <template if:true={hasRestoreDataSelectedObjects}>
+                                            <span class="ms-preview-text">{restoreDataSelectedObjectLabels}</span>
+                                            <span class="ms-badge">{restoreDataSelectedObjectsCount}</span>
+                                            <lightning-button-icon icon-name="utility:close" alternative-text="Clear" variant="bare" size="small" onclick={fireClearRestoreDataObjects}></lightning-button-icon>
+                                        </template>
+                                        <template if:false={hasRestoreDataSelectedObjects}>
+                                            <span class="ms-placeholder">Choose Objects</span>
+                                            <lightning-icon icon-name="utility:down" size="x-small" class="ms-arrow"></lightning-icon>
+                                        </template>
+                                    </div>
+                                    <template if:true={isRestoreDataObjectDropdownOpen}>
+                                        <div class="ms-dropdown slds-is-absolute">
+                                            <div class="ms-search" onclick={stopProp}>
+                                                <lightning-input type="search" variant="label-hidden" placeholder="Search objects..." value={restoreDataObjectSearchTerm} onchange={fireRestoreDataObjectSearch}></lightning-input>
+                                            </div>
+                                            <div class="ms-select-all" onclick={fireSelectAllRestoreDataObjects}>
+                                                <span class={selectAllRestoreDataObjectsCheckboxClass}>
+                                                    <template if:true={isAllRestoreDataObjectsSelected}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                                </span>
+                                                <span class="ms-item-label ms-select-all-label">Select All</span>
+                                                <span class="ms-select-all-count">({rawObjectOptionsCount})</span>
+                                            </div>
+                                            <ul class="ms-list">
+                                                <template if:true={hasFilteredRestoreDataObjects}>
+                                                    <template for:each={filteredRestoreDataObjects} for:item="obj">
+                                                        <li key={obj.value} class={obj.itemClass} data-value={obj.value} onclick={fireRestoreDataObjectToggle}>
+                                                            <span class={obj.checkboxClass}><template if:true={obj.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template></span>
+                                                            <span class="ms-item-label">{obj.label}</span>
+                                                        </li>
+                                                    </template>
+                                                </template>
+                                                <template if:false={hasFilteredRestoreDataObjects}><li class="ms-no-results">No objects found</li></template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <div class="multiselect-wrapper slds-is-relative">
+                                    <label class="slds-form-element__label">Select Records</label>
+                                    <template if:true={isLoadingRestoreDataRecords}>
+                                        <div class="slds-align_absolute-center slds-p-around_small"><lightning-spinner alternative-text="Loading records..." size="small"></lightning-spinner></div>
+                                    </template>
+                                    <template if:false={isLoadingRestoreDataRecords}>
+                                        <div class={computedRestoreRecordClass} onclick={fireRestoreRecordClick}>
+                                            <template if:true={hasRestoreDataSelectedRecords}>
+                                                <span class="ms-preview-text">{restoreDataSelectedRecordLabels}</span>
+                                                <span class="ms-badge">{restoreDataSelectedRecordsCount}</span>
+                                                <lightning-button-icon icon-name="utility:close" alternative-text="Clear" variant="bare" size="small" onclick={fireClearRestoreDataRecords}></lightning-button-icon>
+                                            </template>
+                                            <template if:false={hasRestoreDataSelectedRecords}>
+                                                <span class="ms-placeholder">
+                                                    <template if:true={isRestoreDataMultipleObjects}>Multiple objects selected</template>
+                                                    <template if:false={isRestoreDataMultipleObjects}>Choose Records</template>
+                                                </span>
+                                                <lightning-icon icon-name="utility:down" size="x-small" class="ms-arrow"></lightning-icon>
+                                            </template>
+                                        </div>
+                                        <template if:true={noRestoreDataRecordsAvailable}>
+                                            <p class="slds-text-body_small slds-text-color_error slds-m-top_xx-small">
+                                                <lightning-icon icon-name="utility:error" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>No Records available.
+                                            </p>
+                                        </template>
+                                        <template if:true={isRestoreDataRecordDropdownOpen}>
+                                            <div class="ms-dropdown slds-is-absolute">
+                                                <div class="ms-search" onclick={stopProp}>
+                                                    <lightning-input type="search" variant="label-hidden" placeholder="Search records..." value={restoreDataRecordSearchTerm} onchange={fireRestoreDataRecordSearch}></lightning-input>
+                                                </div>
+                                                <div class="ms-select-all" onclick={fireSelectAllRestoreDataRecords}>
+                                                    <span class={selectAllRestoreDataRecordsCheckboxClass}>
+                                                        <template if:true={isAllRestoreDataRecordsSelected}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                                    </span>
+                                                    <span class="ms-item-label ms-select-all-label">Select All</span>
+                                                    <span class="ms-select-all-count">({restoreDataRawRecordOptionsCount})</span>
+                                                </div>
+                                                <ul class="ms-list">
+                                                    <template if:true={hasFilteredRestoreDataRecords}>
+                                                        <template for:each={filteredRestoreDataRecords} for:item="rec">
+                                                            <li key={rec.value} class={rec.itemClass} data-value={rec.value} onclick={fireRestoreDataRecordToggle}>
+                                                                <span class={rec.checkboxClass}><template if:true={rec.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template></span>
+                                                                <span class="ms-item-label">{rec.label}</span>
+                                                            </li>
+                                                        </template>
+                                                    </template>
+                                                    <template if:false={hasFilteredRestoreDataRecords}><li class="ms-no-results">No records found</li></template>
+                                                </ul>
+                                            </div>
+                                        </template>
+                                    </template>
+                                </div>
+                                <template if:true={isRestoreDataMultipleObjects}>
+                                    <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                        <lightning-icon icon-name="utility:info" size="xx-small" class="slds-m-right_xx-small"></lightning-icon>Record selection unavailable when multiple objects are selected.
+                                    </p>
+                                </template>
+                            </div>
+                        </div>
+                        <template if:true={isRestoreScheduleMode}>
+                            <div class="schedule-section slds-m-top_medium">
+                                <div class="schedule-section-title"><lightning-icon icon-name="utility:clock" size="x-small" class="slds-m-right_x-small"></lightning-icon>Scheduling Frequency</div>
+                                <div class="schedule-options">
+                                    <div class={restoreScheduleDailyClass} data-freq="daily" onclick={fireRestoreScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Daily</div><div class="schedule-option-desc">Runs every day at a set time</div></div></div>
+                                    <div class={restoreScheduleWeeklyClass} data-freq="weekly" onclick={fireRestoreScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Weekly</div><div class="schedule-option-desc">Runs once per week on a set day</div></div></div>
+                                    <div class={restoreScheduleMonthlyClass} data-freq="monthly" onclick={fireRestoreScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Monthly</div><div class="schedule-option-desc">Runs once per month on a set date</div></div></div>
+                                </div>
+                                <template if:true={showRestoreScheduleTimeField}>
+                                    <div class="schedule-fields slds-m-top_small">
+                                        <lightning-input type="time" label="Start Time" value={restoreScheduleTime} onchange={fireRestoreScheduleTimeChange} class="schedule-time-input"></lightning-input>
+                                        <template if:true={showRestoreScheduleWeekday}><lightning-combobox label="Day of Week" value={restoreScheduleWeekday} options={weekdayOptions} onchange={fireRestoreWeekdayChange} class="schedule-combo-input"></lightning-combobox></template>
+                                        <template if:true={showRestoreScheduleMonthDay}><lightning-input type="number" label="Day of Month" value={restoreScheduleMonthDay} min="1" max="28" onchange={fireRestoreMonthDayChange} class="schedule-combo-input"></lightning-input></template>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" onclick={handleRestoreBack}></lightning-button>
+                    <lightning-button label="Start Restore" variant="brand" disabled={isRestoreDataDisabled} onclick={fireStartRestore}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ═══ RESTORE METADATA / CONFIG / ORGFULL (inlined split-panel) ═══ -->
+            <template if:true={showRestorePanel}>
+                <div class="metadata-header">
+                    <div class="icon-section"><lightning-icon icon-name={restorePageIcon} size="medium"></lightning-icon></div>
+                    <div class="slds-text-heading_small custom-heading">{restorePageTitle}</div>
+                </div>
+                <div class="split-panel">
+                    <div class="split-nav">
+                        <template for:each={restoreNavTree} for:item="grp">
+                            <div key={grp.key} class={grp.groupClass} data-key={grp.key} onclick={handleRestoreNavClick}>
+                                <div class="split-nav-group-header">
+                                    <span class={grp.checkboxClass} data-key={grp.key} onclick={fireRestoreGroupCheckbox}>
+                                        <template if:true={grp.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                    </span>
+                                    <span class="split-nav-label">{grp.label}</span>
+                                    <lightning-icon icon-name="utility:chevronright" size="x-small" class="split-nav-chevron"></lightning-icon>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="split-panel-content">
+                        <template if:true={isLoadingActivePanel}>
+                            <div class="slds-align_absolute-center slds-p-around_large"><lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner></div>
+                        </template>
+                        <template if:false={isLoadingActivePanel}>
+                            <template if:true={hasActivePanelItems}>
+                                <div class="split-panel-toolbar">
+                                    <span class="split-panel-count">{activePanelTotal} items</span>
+                                    <span class={selectAllPanelCheckboxClass} onclick={fireToggleAllRestorePanel}>
+                                        <template if:true={isActivePanelAllSelected}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template>
+                                    </span>
+                                    <span class="split-panel-select-all-label">Select All</span>
+                                    <template if:true={showPanelSearchBar}>
+                                        <lightning-input type="search" variant="label-hidden" placeholder="Search..." value={panelSearchTerm} onchange={firePanelSearch} class="split-panel-search"></lightning-input>
+                                    </template>
+                                </div>
+                                <ul class="split-panel-list">
+                                    <template for:each={activePanelItems} for:item="item">
+                                        <li key={item.value} class={item.itemClass} data-value={item.value} onclick={firePanelItemToggle}>
+                                            <span class={item.checkboxClass}><template if:true={item.checked}><svg class="ms-check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></template></span>
+                                            <span class="split-panel-item-label">{item.label}</span>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </template>
+                            <template if:false={hasActivePanelItems}>
+                                <div class="split-panel-empty">Select a group to view items</div>
+                            </template>
+                        </template>
+                    </div>
+                </div>
+                <template if:true={isRestoreScheduleMode}>
+                    <div class="schedule-section slds-m-top_medium">
+                        <div class="schedule-section-title"><lightning-icon icon-name="utility:clock" size="x-small" class="slds-m-right_x-small"></lightning-icon>Scheduling Frequency</div>
+                        <div class="schedule-options">
+                            <div class={restoreScheduleDailyClass} data-freq="daily" onclick={fireRestoreScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Daily</div><div class="schedule-option-desc">Runs every day at a set time</div></div></div>
+                            <div class={restoreScheduleWeeklyClass} data-freq="weekly" onclick={fireRestoreScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Weekly</div><div class="schedule-option-desc">Runs once per week on a set day</div></div></div>
+                            <div class={restoreScheduleMonthlyClass} data-freq="monthly" onclick={fireRestoreScheduleSelect}><div class="schedule-radio-dot"></div><div class="schedule-option-content"><div class="schedule-option-title">Monthly</div><div class="schedule-option-desc">Runs once per month on a set date</div></div></div>
+                        </div>
+                        <template if:true={showRestoreScheduleTimeField}>
+                            <div class="schedule-fields slds-m-top_small">
+                                <lightning-input type="time" label="Start Time" value={restoreScheduleTime} onchange={fireRestoreScheduleTimeChange} class="schedule-time-input"></lightning-input>
+                                <template if:true={showRestoreScheduleWeekday}><lightning-combobox label="Day of Week" value={restoreScheduleWeekday} options={weekdayOptions} onchange={fireRestoreWeekdayChange} class="schedule-combo-input"></lightning-combobox></template>
+                                <template if:true={showRestoreScheduleMonthDay}><lightning-input type="number" label="Day of Month" value={restoreScheduleMonthDay} min="1" max="28" onchange={fireRestoreMonthDayChange} class="schedule-combo-input"></lightning-input></template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                    <lightning-button label="Back" onclick={handleRestoreBack}></lightning-button>
+                    <lightning-button label="Start Restore" variant="brand" disabled={isRestorePanelDisabled} onclick={fireStartRestore}></lightning-button>
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,348 @@
+<template>
+	<article class="slds-card">
+		<div class="slds-card__header slds-grid customheader">
+			<header class="slds-media slds-media_center slds-has-flexi-truncate">
+				<div class="slds-left">
+					<template if:false={parentTemp}>
+						<lightning-icon icon-name="utility:back" onclick={handleBack} size="x-small" class={iconClass}>
+						</lightning-icon>
+					</template>
+				</div>
+
+				<div class="slds-media__body">
+
+					<h2 class="slds-card__header-title">
+
+						<a href="#" class="slds-card__header-link slds-truncate" title="Accounts">
+							<span>{Files}</span>
+						</a>
+					</h2>
+
+				</div>
+				<div class="slds-no-flex">
+
+					<template if:true={uploadloaded}>
+						<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-03"
+							class="slds-modal slds-fade-in-open slds-modal_full">
+							<div class="slds-modal__container">
+								<div class="slds-align_absolute-center">
+									<lightning-progress-ring value={uploadProgress} variant="base-autocomplete"
+										size="large">
+									</lightning-progress-ring>
+								</div>
+							</div>
+						</section>
+						<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+					</template>
+					<lightning-button-group>
+						<template if:false={parentTemp}>
+							<lightning-button icon-name="utility:upload" label="Upload Files"
+								onclick={handleButtonClickfolder}>
+							</lightning-button>
+						</template>
+						<input type="file" multiple style="display: none;" ref={fileInput}></input>
+						<lightning-button icon-name="utility:add" label="Add Folder" title="Add folder"
+							onclick={handleModalOpen}></lightning-button>
+					</lightning-button-group>
+				</div>
+			</header>
+			<!-------------------------------------------ADD FOLDER MODAL---------------------------------------------------------->
+
+			<template if:true={isModalOpen}>
+				<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+					class="slds-modal slds-fade-in-open slds-modal_full"
+					style="max-width: 80vh; max-height: 45vh; margin: auto; top: 0%;">
+					<div class="slds-modal__container">
+
+						<div class="slds-modal__header">
+							<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Add Folder</h1>
+						</div>
+						<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+							<lightning-input type="text" variant="standard" name="Folder Name" label="Folder Name"
+								onchange={handleFolderNameChange}></lightning-input>
+						</div>
+						<div class="slds-modal__footer">
+							<button class="slds-button slds-button_brand" aria-label="Submit" onclick={handleClick}>Submit</button>
+							<button class="slds-button slds-button_brand" aria-label="Cancel" onclick={handleModalClose}>Cancel</button>
+						</div>
+					</div>
+				</section>
+				<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+			</template>
+
+
+		</div>
+		<div class="slds-card__body slds-card__body_inner">
+
+			<ul class="slds-has-dividers_bottom-space">
+				<!----------------------------------------------FILE TEMPLETE--------------------------------------------->
+				<template if:true={showFile}>
+					<lightning-card title={currentFolderName} icon-name="standard:file">
+						<!--<template if:true={showSpinner}>
+							<div class="exampleHolder">
+								<lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+							</div>
+						</template>-->
+						<ul>
+							<template if:true={isfolderList}>
+								<template for:each={folderlist} for:item="folder">
+									<li key={folder.Id}>
+										<div class="slds-tile slds-media ">
+											<div class="slds-media__figure ">
+												<lightning-icon style="color:green" key={folder.Id}
+													icon-name="doctype:folder" alternative-text="Folder icon"
+													size="x-small">
+												</lightning-icon>
+											</div>
+											<div class="slds-media__body">
+												<h3 class="slds-truncate">
+													<a data-id={folder.Id} data-type={folder.Type__c}
+														onclick={folderclick}>{folder.Name}</a>
+												</h3>
+
+												<div class="slds-tile__detail slds-text-body--small">
+													<ul class="slds-list_horizontal slds-has-dividers_right">
+														<li class="slds-item">{folder.CreatedDate}</li>
+														<li class="slds-item">{folder.CreatedBy.Name}</li>
+													</ul>
+												</div>
+											</div>
+
+											<div class="slds-no-flex" style="padding-right: 65px;">
+												<template if:true={showdelete}>
+													<button class="slds-button slds-button_neutral" style="padding-left: 43px;padding-right: 43px;" data-folder-id={folder.Id} data-folder-name={folder.Name} onclick={handleFolderDelete}>
+  												<lightning-icon style="color:blue" icon-name="utility:delete" alternative-text="delete" size="xx-small" ></lightning-icon>
+  												&nbsp; Delete</button>
+												</template>
+												<template if:true={showShare}>
+
+													<button class="slds-button slds-button_neutral" style="padding-left: 43px;padding-right: 43px;" data-id={folder.Id}  data-type="folder" onclick={showPopup} >
+  												<lightning-icon style="color:blue" icon-name="utility:share" alternative-text="share" size="xx-small" ></lightning-icon>
+  												&nbsp; Share</button>
+													<!-- <button class="slds-button slds-button_neutral" style="padding-left: 43px;padding-right: 43px;" data-folder-id={folder.Id} data-folder-name={folder.Name} onclick={copyTextToClipboard} >
+  												<lightning-icon style="color:blue" icon-name="utility:copy_to_clipboard" alternative-text="Copy" size="xx-small" ></lightning-icon>
+  												&nbsp; Copy URL</button> -->
+												</template>
+											</div>
+										</div>
+									</li>
+								</template>
+
+							</template>
+							<template for:each={dataTable} for:item="file">
+								<li key={file.id}>
+									<div class="slds-tile slds-media ">
+										<div class="slds-media__figure ">
+											<lightning-icon key={file.Id} icon-name={file.File_Type__c}
+												alternative-text="Doc Type" size="x-small">
+											</lightning-icon>
+										</div>
+										<div class="slds-media__body">
+											<h3 class="slds-truncate">
+												<a data-id={file.Id} value={file}
+													onclick={handleButtonClick}>{file.File_Name__c}</a>
+											</h3>
+
+											<div class="slds-tile__detail slds-text-body--small">
+												<ul class="slds-list_horizontal slds-has-dividers_right">
+													<li class="slds-item">{file.CreatedDate}</li>
+													<li class="slds-item">{file.File_sizes__c}</li>
+													<li class="slds-item">{file.CreatedBy.Name}</li>
+												</ul>
+											</div>
+										</div>
+
+										<div class="slds-no-flex">
+											<lightning-button-group>
+												<lightning-button label="Download" icon-name="utility:download"
+													value={file} onclick={handleButtonClick}>
+												</lightning-button>
+												<lightning-button-menu alternative-text="Show menu"
+													class="slds-dropdown_xx-small">
+													<template if:true={showdelete}>
+														<lightning-menu-item icon-name="utility:delete" label="Delete"
+															onclick={handleButtonClick} value={file}>
+														</lightning-menu-item>
+													</template>
+													<template if:true={showShare}>
+														<lightning-menu-item icon-name="utility:share" label="Share"
+															onclick={showPopup} data-type="file" value={file}>
+														</lightning-menu-item>
+													</template>
+													<lightning-menu-item icon-name="utility:copy_to_clipboard"
+														label="Copy URL" onclick={handleButtonClick} value={file}>
+													</lightning-menu-item>
+												</lightning-button-menu>
+											</lightning-button-group>
+										</div>
+									</div>
+								</li>
+							</template>
+						</ul>
+					</lightning-card>
+				</template>
+				<template if:false={parentTemp}>
+					<template if:true={noFile}>
+						<p><b>No Files and Folders Found ... </b></p>
+					</template>
+				</template>
+				<template if:true={parentTemp}>
+					<template if:true={noFile}>
+						<p><b>No Folders Found ... </b></p>
+					</template>
+				</template>
+			</ul>
+
+
+		</div>
+
+		<!--------------------------------------PREVIEW MODAL------------------------------------------------------->
+
+		<template if:true={showModal}>
+			<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+				class="slds-modal slds-fade-in-open slds-modal_full">
+				<div class="slds-modal__container">
+					<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handleCloseModal}>
+                  <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+               </button>
+					<div class="slds-modal__header">
+						<h1 id="modal-heading-03" class="slds-modal__title slds-hyphenate">Preview
+						</h1>
+					</div>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
+						<template if:true={url}>
+							<iframe src={url} height="100%" width="100%" title="techdicer"></iframe>
+						</template>
+						<template if:false={url}>{urlerror}</template>
+					</div>
+					<div class="slds-modal__footer">
+						<button class="slds-button slds-button_brand" aria-label="Cancel and close" onclick={handleCloseModal}>Close</button>
+					</div>
+				</div>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open" role="presentation">
+			</div>
+		</template>
+
+
+		<!------------------------------------------- Sharing model ----------------------------------------------------->
+
+		<template if:true={isPopupVisible}>
+			<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+				class="slds-modal slds-fade-in-open slds-modal_full"
+				style="max-width: 80vh; min-height: 45vh; margin: auto; top: 0%;">
+				<div class="slds-modal__container">
+					<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={cancelPopup}>
+                  <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+               </button>
+					<div class="slds-modal__header">
+						<h1 id="modal-heading-04" class="slds-modal__title slds-hyphenate">Share
+						</h1>
+					</div>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+						<div class="slds-grid slds-wrap slds-gutters">
+							<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_1-of-1">
+								<lightning-combobox name="userSelection" label="Select User" value={selectedUser}
+									options={userOptions} data-type="user" onchange={handleChange} required="true">
+								</lightning-combobox>
+							</div>
+							<div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_4-of-12">
+								<lightning-combobox name="access type" label={accessLabel} value={selectedAccess}
+									placeholder="Select Access" options={accessoptions} onchange={handleChange}
+									data-type="access" required="true"></lightning-combobox>
+							</div>
+							<div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_8-of-12">
+							</div>
+							<div class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 slds-large-size_8-of-12">
+								<br>
+								Shared with {accesslistsize} groups of users. <lightning-button variant="base" label="Edit" title="Edit"
+									onclick={handleEditAccess}></lightning-button>
+								<br>
+							</div>
+								<div
+									class="slds-col slds-size_1-of-1 slds-medium-size_12-of-12 slds-large-size_12-of-12">
+									<template if:true={showaccesstable}>
+										<table class="slds-table slds-table_cell-buffer slds-table_bordered">
+											<thead>
+												<tr class="slds-line-height_reset">
+													<th scope="col">User Name </th>
+													<th scope="col">Type</th>
+													<th scope="col">Access</th>
+													<th scope="col"></th>
+												</tr>
+											</thead>
+											<tbody>
+												<template for:each={accesslist} for:item="obj">
+													<tr key={obj.Id} class="slds-hint-parent">
+														<th scope="row">{obj.UserOrGroup.Name}</th>
+														<th scope="row">{obj.UserOrGroup.Type}</th>
+														<th scope="row">
+															<template if:true={obj.isAll}>
+																<lightning-combobox variant="label-hidden"
+																	name="access type" value={obj.AccessLevel}
+																	options={accessoptionsfortable} disabled="true">
+																</lightning-combobox>
+															</template>
+															<template if:false={obj.isAll}>
+																<lightning-combobox variant="label-hidden"
+																	name="access type" value={obj.AccessLevel}
+																	data-type="table" data-id={obj.Id}
+																	options={accessoptions} onchange={handleChange}>
+																</lightning-combobox>
+															</template>
+
+														</th>
+														<th scope="action"
+															class="vertical-padding slds-align_absolute-center">
+															<template if:true={obj.isAll}>
+																<lightning-icon icon-name="utility:close"
+																	data-id={obj.Id} size="x-small"
+																	alternative-text="Close" data-type="delete">
+																</lightning-icon>
+															</template>
+															<template if:false={obj.isAll}>
+																<lightning-icon icon-name="utility:close"
+																	data-id={obj.Id} size="x-small"
+																	alternative-text="Close" data-type="delete"
+																	onclick={handleChange}>
+																</lightning-icon>
+															</template>
+
+
+														</th>
+													</tr>
+												</template>
+											</tbody>
+										</table>
+									</template>
+								</div>
+							</div>
+
+
+						</div>
+						<div class="slds-modal__footer">
+							<button class="slds-button slds-button_neutral" aria-label="Cancel" onclick={cancelPopup}>Close</button>
+							<button class="slds-button slds-button_brand" aria-label="Share" onclick={handleShare}>Share</button>
+						</div>
+					</div>
+
+			</section>
+			<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+			<!-- <div class="popup-container" >
+				<div class="popup">
+					<button class="close-icon" onclick={cancelPopup}>
+					</button>
+					<div class="select-user">
+							<lightning-combobox	name="userSelection" label="Select User" value={selectedUser} options={userOptions} onchange={handleUserChange}></lightning-combobox>
+`						</div>
+						<lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+					<p>Selected User: {selectedUser}</p>
+					<div class="main-content">
+						<lightning-button label="Cancel" onclick={cancelPopup}></lightning-button>
+						<lightning-button label="Share" onclick={handleShare}></lightning-button>
+					</div>
+				</div>
+			</div> -->
+		</template>
+	</article>
+</template>

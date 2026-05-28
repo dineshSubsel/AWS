@@ -1,0 +1,85 @@
+.slds-modal__container {
+    max-width: 90% !important;
+    width: 100% !important;
+}
+.slds-modal__content
+    
+{
+    min-height: 75% !important;
+}
+div.slds-table 
+{
+    min-width: rem-calc(640);
+}
+.horizontal-scroll {
+    overflow: hidden;
+    overflow-x: auto;
+    clear: both;
+    width: 100%;
+}
+
+.removeDropZone {
+    color: #ffffff;      
+    --lwc-borderWidthThin: 0px;
+     
+ }
+.lgc-bg {
+    background-color: rgb(242 242 242);
+}
+.custom-css{
+    max-height: 590px;
+}
+
+.custom-modal-position {
+    position: fixed;
+    width: 100%;
+    max-height: 50vh; 
+    margin: 0 auto;
+    transform: translateY(calc(100% - 10vh)); 
+}
+ .custom-file-input {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid black;
+    background-color: white;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-left: 734px;
+  }
+
+  .custom-file-input input[type="file"] {
+    display: none;
+  }
+
+  .custom-file-input .customcss-icon {
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  .custom-progress-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.custom-modal {
+    max-width: 80%; /* Adjust this value to control the width of the modal */
+    width: 100%;
+}
+
+.custom-progress-bar {
+    padding: 10px; /* Add some padding around the progress bar */
+    max-width: 100%; /* Make sure the progress bar fits within the modal */
+}
+.customAlign{
+    text-align: left;
+}
+th{
+	background-color: white;
+}
+.slds-table thead th{
+	    background-color: white;
+}

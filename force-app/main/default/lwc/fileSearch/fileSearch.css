@@ -1,0 +1,34 @@
+.slds-card{
+min-height: 710px;
+}
+.custom-padding{
+    padding: 0;
+}
+.custom-medium-size {
+    max-width:0px;
+    white-space: nowrap;
+}
+.custom-small-size{
+    font-size: 12px;
+    max-width: 0px;
+    white-space: nowrap;
+    /* color: black; */
+}
+.slds-modal__container {
+    max-width: 90% !important;
+    width: 100% !important;
+}
+.slds-modal__content   
+{
+    min-height: 75% !important;
+}
+div.slds-table 
+{
+    min-width: rem-calc(640);
+}
+.horizontal-scroll {
+    overflow: hidden;
+    overflow-x: auto;
+    clear: both;
+    width: 100%;
+}

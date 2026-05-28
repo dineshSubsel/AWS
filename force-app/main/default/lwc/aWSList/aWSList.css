@@ -1,0 +1,86 @@
+/* Drag and Drop Overlay */
+.drag-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1050;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.drag-message {
+    text-align: center;
+    background: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal Sizing and Layout */
+.slds-modal__container {
+    max-width: 40rem;
+    width: 95%;
+}
+
+.slds-modal__header p {
+    font-size: 0.875rem;
+    color: #555;
+}
+
+/* File Upload Section */
+.slds-file-selector__body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border: 2px dashed #d8dde6;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    background-color: #f4f6f9;
+    transition: background-color 0.2s ease;
+}
+
+.slds-file-selector__body:hover {
+    background-color: #eaf1f9;
+}
+
+.slds-file-selector__text {
+    margin-left: 1rem;
+    font-size: 0.875rem;
+    color: #4a4a4a;
+}
+
+/* Upload Results Styling */
+.slds-box.slds-theme_success {
+    background-color: #e3fcef;
+    border: 1px solid #a8d5b8;
+    color: #0a6640;
+}
+
+.slds-box.slds-theme_error {
+    background-color: #fdeaea;
+    border: 1px solid #f5b7b1;
+    color: #a94442;
+}
+
+.slds-list_dotted {
+    list-style: disc;
+    padding-left: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+/* Table Adjustments */
+lightning-datatable {
+    --slds-c-table-border-radius: 0.5rem;
+    --slds-c-table-header-font-weight: 600;
+}
+
+/* Misc Spacing */
+.slds-m-vertical_large {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}

@@ -1,0 +1,16 @@
+.slds-card{
+  min-height: 800px; 
+}
+.customheader{
+    background-color:#f3f3f3 !important;
+    padding-bottom: 12px;
+    border-radius: 2px;
+}
+.customalignment
+{
+  margin-top: 8px;
+    margin-left: 8px;
+}
+.tree-item {
+    font-size: 16px; /* Adjust the font size as needed */
+}

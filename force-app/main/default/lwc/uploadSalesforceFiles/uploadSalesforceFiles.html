@@ -1,0 +1,89 @@
+<template>
+    <!-- Card Header -->
+    <div class="custom-card-header slds-grid slds-grid_align-spread slds-p-around_small slds-grid_vertical-align-center">
+
+        <div class="slds-media slds-media_center">
+            <div class="slds-media__figure">
+                <lightning-icon icon-name="custom:custom63" size="small"></lightning-icon>
+            </div>
+            <div class="slds-media__body slds-m-left_small">
+                <h2 class="slds-text-heading_small slds-text-title_bold">
+                    Upload Salesforce Files
+                </h2>
+            </div>
+        </div>
+
+        <!-- Right Buttons -->
+       <div class="slds-button-group" role="group">
+
+    <button
+        class="slds-button custom-upload-btn"
+        onclick={handleLoadFiles}
+        disabled={isUploadButtonDisabled}>
+        {uploadButtonLabel}
+    </button>
+
+    <lightning-button-menu
+        icon-name="utility:down"
+        alternative-text="More Actions"
+        variant="border-filled"
+        class="slds-m-left_small"
+        menu-alignment="right"
+        onselect={handleMenuSelect}>
+        <lightning-menu-item
+            label="Delete All"
+            value="deleteAll"
+            disabled={isDeleteAllDisabled}>
+        </lightning-menu-item>
+    </lightning-button-menu>
+
+</div>
+    </div>
+
+    <!-- Upload Section -->
+    <template if:true={showUploadSection}>
+        <div class="upload-section slds-p-horizontal_small">
+
+            <lightning-datatable
+                key-field="index"
+                data={files}
+                columns={columns}
+                hide-checkbox-column
+                resize-column-disabled
+                onrowaction={handleRowAction}>
+            </lightning-datatable>
+
+            <!-- Bulk Buttons -->
+            <div class="action-buttons slds-m-top_medium">
+
+                <lightning-button
+                    label="Upload All"
+                    onclick={handleUploadAll}
+                    disabled={isUploadDisabled}
+                    class="slds-m-right_small">
+                </lightning-button>
+
+                <lightning-button
+                    label="Skip All"
+                    onclick={handleSkipAll}
+                    disabled={isSkipDisabled}
+                    class="slds-m-right_small">
+                </lightning-button>
+
+                <lightning-button
+                    label="Abort All"
+                    onclick={handleAbort}
+                    disabled={isAbortDisabled}>
+                </lightning-button>
+
+            </div>
+
+            <template if:true={error}>
+                <div class="slds-text-color_error slds-m-top_small">
+                    Error: {error}
+                </div>
+            </template>
+
+        </div>
+    </template>
+</template>

@@ -1,0 +1,78 @@
+:host {
+    display: block;
+}
+
+.custom-card-header {
+    border-bottom: 1px solid #d8dde6;
+    background-color: #f3f2f2;
+    min-height: 48px;
+    align-items: center;
+}
+
+.upload-section {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.upload-section lightning-datatable {
+    width: 100%;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+
+.custom-upload-btn {
+    min-width: 110px;
+    height: 32px;
+    background-color: #ffffff;
+    /* color: #2e2b2b; */
+    border: 1px solid #605e5e;
+    border-radius: 2px;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.custom-upload-btn:hover {
+    background-color: #f4f6f9;
+}
+
+/*  Disabled - gray out */
+
+.custom-upload-btn:disabled {
+    background-color: #adacac; /*afacac;*/
+    color: #ffffff;
+    border: none !important;
+    cursor: allowed;
+}
+
+.fixed-width-btn {
+    width: 100%;
+}
+
+/* Ensure consistent button width */
+.custom-card-header lightning-button::part(button) {
+    min-width: 110px;
+    width: 110px;
+}
+
+/* Optional utility for fixed width buttons */
+.fixed-width-btn {
+    width: 100%;
+}
+
+.fixed-width-btn::part(button) {
+    width: 100%;
+    justify-content: center;
+}

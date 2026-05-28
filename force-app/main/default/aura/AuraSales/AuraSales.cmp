@@ -1,0 +1,22 @@
+<aura:component>
+    <aura:attribute name="leftInput1" type="String" />
+    <aura:attribute name="leftInput2" type="String" />
+    <aura:attribute name="leftInput3" type="String" />
+    <aura:attribute name="rightInput1" type="String" default="Read-only 1" />
+    <aura:attribute name="rightInput2" type="String" default="Read-only 2" />
+    <aura:attribute name="rightInput3" type="String" default="Read-only 3" />
+
+    <div class="slds-grid slds-wrap">
+        <div class="slds-col slds-size_4-of-12">
+            <lightning:input label="Input 1" value="{!v.leftInput1}" />
+            <lightning:input label="Input 2" value="{!v.leftInput2}" />
+            <lightning:input label="Input 3" value="{!v.leftInput3}" />
+        </div>
+
+        <div class="slds-col slds-size_4-of-12">
+            <lightning:input label="Read-only 1" value="{!v.rightInput1}" disabled="true" />
+            <lightning:input label="Read-only 2" value="{!v.rightInput2}" disabled="true" />
+            <lightning:input label="Read-only 3" value="{!v.rightInput3}" disabled="true" />
+        </div>
+    </div>
+</aura:component>

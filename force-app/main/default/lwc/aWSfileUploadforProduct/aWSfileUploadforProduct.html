@@ -1,0 +1,27 @@
+<template>
+	<lightning-card variant="Narrow" title="AWS Attachments" style="width:30rem" icon-name="standard:file">
+		<div class="custom-file-input">
+			<label for="file-input" class="file-label">
+	    <lightning-icon class="customcss-icon" icon-name="utility:upload" size="xx-small"
+	      alternative-text="Upload File!" title="Upload File"></lightning-icon>
+	    Upload Files
+	  </label>
+			<input id="file-input" type="file" onchange={handleSelectedFiles} multiple />
+	</div>
+			<template if:true={uploadloaded}>
+				<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-03"
+					class="slds-modal slds-fade-in-open slds-modal_full">
+					<div class="slds-modal__container">
+						<div class="slds-align_absolute-center">
+							<lightning-progress-ring value={uploadProgress} variant="base-autocomplete" size="large">
+							</lightning-progress-ring>
+						</div>
+					</div>
+				</section>
+				<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+			</template>
+			<template if:true={showSpinner}>
+				<lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+			</template>
+	</lightning-card>
+</template>

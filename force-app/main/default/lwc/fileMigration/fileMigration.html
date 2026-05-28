@@ -1,0 +1,362 @@
+<template>
+
+  <!-- Page Header -->
+  <div class="slds-p-bottom_xx-small">
+    <div class="slds-page-header">
+      <div class="slds-page-header__row">
+        <div class="slds-page-header__col-title">
+          <div class="slds-media">
+            <div class="slds-media__figure">
+              <lightning-icon icon-name="standard:file" alternative-text="Salesforce S3 Sync"></lightning-icon>
+            </div>
+            <div class="slds-media__body">
+              <h1 class="header">
+                <span class="slds-page-header__title slds-truncate" title="Salesforce S3 Sync">Salesforce S3 Sync</span>
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <lightning-card>
+
+    <!-- File Object Selection -->
+    <div class="slds-p-around_small padding-top">
+      <lightning-radio-group
+        name="fileObject"
+        label="Salesforce File Object"
+        options={fileObjectOptions}
+        value={selectedFileObject}
+        type="radio"
+        onchange={handleFileObjectChange}>
+      </lightning-radio-group>
+    </div>
+
+    <!-- Object Selector -->
+    <div class="slds-p-around_small">
+      <lightning-combobox
+        name="objectSelect"
+        label="Select Object"
+        value={selectedObject}
+        placeholder="Select Object"
+        options={objectOptions}
+        onchange={handleObjectChange}>
+      </lightning-combobox>
+    </div>
+
+    <!-- File Filter -->
+    <div class="slds-p-around_small">
+      <lightning-radio-group
+        name="fileFilter"
+        label="Salesforce Filter File"
+        options={fileFilterOptions}
+        value={selectedFileFilter}
+        type="radio"
+        onchange={handleFilterChange}>
+      </lightning-radio-group>
+    </div>
+
+    <!-- Conditional SOQL Input -->
+    <template if:true={showSOQLInput}>
+      <div class={soqlContainerClass}>
+
+        <!-- Label Row -->
+        <div class="soql-label-row">
+          <label class="slds-form-element__label soql-label">
+            <abbr class="slds-required" title="required">*</abbr>
+            SOQL Filter Condition
+          </label>
+          <lightning-helptext
+            content="Enter the Filter Condition Using Field Names and Values. Example: Name = 'AWS'"
+            class="help-text">
+          </lightning-helptext>
+        </div>
+
+        <!-- Textarea -->
+        <div class="soql-textarea-wrapper">
+          <lightning-textarea
+            class="soql-textarea"
+            value={soqlFilter}
+            onchange={handleSOQLInput}>
+          </lightning-textarea>
+        </div>
+
+        <!-- Error -->
+        <template if:true={showSoqlError}>
+          <div class="soql-error-row">
+            <lightning-icon
+              icon-name="utility:error"
+              size="xx-small"
+              variant="error"
+              alternative-text="Error">
+            </lightning-icon>
+            <span class="soql-error-text">Please enter a SOQL Filter Condition.</span>
+          </div>
+        </template>
+
+        <!-- Preview Button + Record Count -->
+        <div class="soql-actions-row">
+          <lightning-button
+            label="Preview Records"
+            variant="neutral"
+            onclick={handlePreviewRecords}
+            disabled={isPreviewDisabled}>
+          </lightning-button>
+          <template if:true={showPreviewTable}>
+          </template>
+        </div>
+
+      </div>
+
+      <!-- Preview Table Card -->
+      <template if:true={showPreviewTable}>
+        <div class="soql-preview-card">
+
+          <div class="soql-preview-header">
+            <div class="soql-preview-header-left">
+              <span class="soql-preview-title">Preview Results</span>
+              <span class="soql-preview-badge">{previewTotalCount}</span>
+            </div>
+          </div>
+
+          <div class="soql-preview-body">
+
+            <template if:true={isPreviewLoading}>
+              <div class="soql-preview-spinner">
+                <lightning-spinner size="small" alternative-text="Loading"></lightning-spinner>
+                <span class="soql-preview-spinner-text">Fetching records...</span>
+              </div>
+            </template>
+
+            <template if:false={isPreviewLoading}>
+              <template if:true={hasPreviewRows}>
+                <lightning-datatable
+                  key-field="_rowIndex"
+                  data={previewRows}
+                  columns={previewColumns}
+                  hide-checkbox-column
+                  show-row-number-column>
+                </lightning-datatable>
+              </template>
+              <template if:false={hasPreviewRows}>
+                <div class="soql-no-records">
+                  <lightning-icon icon-name="utility:search" size="medium" class="soql-no-records-icon"></lightning-icon>
+                  <p class="soql-no-records-title">No Records Found</p>
+                  <p class="soql-no-records-sub">Try adjusting your filter condition.</p>
+                </div>
+              </template>
+            </template>
+
+          </div>
+        </div>
+      </template>
+
+    </template>
+
+    <!-- Delete Checkbox -->
+    <div class="slds-p-around_small">
+      <lightning-input
+        type="checkbox"
+        label="Delete Migrated Salesforce Files / Attachments"
+        checked={deleteAfterMigration}
+        onchange={handleDeleteChange}
+        field-level-help="If selected, the Salesforce files and attachments will be permanently deleted after successful migration to S3.">
+      </lightning-input>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="slds-p-around_small slds-grid slds-grid_align-end">
+      <lightning-button
+        label={startButtonLabel}
+        variant="brand"
+        class="slds-m-right_small"
+        onclick={startMigration}
+        disabled={isStartDisabled}>
+      </lightning-button>
+      <lightning-button
+        label="Abort"
+        variant="neutral"
+        class="slds-m-right_small"
+        onclick={abortMigration}
+        disabled={isAbortDisabled}>
+      </lightning-button>
+      <lightning-button
+        label="Schedule Migration"
+        variant="neutral"
+        onclick={openScheduleModal}
+        disabled={isStartDisabled}>
+      </lightning-button>
+    </div>
+
+    <!-- Schedule Migration Modal -->
+    <template if:true={showScheduleModal}>
+      <section
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="modal-heading-01"
+        aria-modal="true"
+        class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+
+          <header class="slds-modal__header">
+            <button
+              class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+              title="Close"
+              onclick={closeScheduleModal}>
+              <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+              <span class="slds-assistive-text">Close</span>
+            </button>
+            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Schedule Migration</h2>
+          </header>
+
+          <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+            <div class="slds-form slds-form_stacked">
+
+              <!-- Start Time -->
+              <div>
+                <lightning-combobox
+                  name="time"
+                  label="Start Time"
+                  value={scheduleTime}
+                  options={timeOptions}
+                  onchange={handleTimeChange}>
+                </lightning-combobox>
+              </div>
+
+              <!-- Frequency -->
+              <div>
+                <span class="slds-form-element__label">Frequency</span>
+                <div class="slds-form-element__control">
+                  <lightning-radio-group
+                    name="frequency"
+                    options={frequencyOptions}
+                    value={scheduleFrequency}
+                    type="radio"
+                    variant="label-hidden"
+                    onchange={handleFrequencyChange}>
+                  </lightning-radio-group>
+                </div>
+              </div>
+
+              <!-- Weekly: Days of Week -->
+              <template if:true={showDaysSelection}>
+                <div>
+                  <label class="slds-form-element__label">Days of Week</label>
+                  <div class="slds-form-element__control">
+                    <lightning-checkbox-group
+                      name="daysOfWeek"
+                      options={dayOfWeekOptions}
+                      value={selectedDays}
+                      onchange={handleDaysChange}>
+                    </lightning-checkbox-group>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Monthly Options -->
+              <template if:true={showDateSelection}>
+
+                <!-- Option A: Specific day of month -->
+                <div class="radio-schedule-row">
+                  <input
+                    type="radio"
+                    name="monthlyType"
+                    value="day"
+                    checked={isDayOfMonth}
+                    onchange={handleMonthlyTypeRadioChange}
+                    class="native-radio" />
+                  <span class="inline-label">On day</span>
+                  <div class="tiny-combobox">
+                    <lightning-combobox
+                      name="dayOfMonth"
+                      value={dayOfMonth}
+                      options={dayOptions}
+                      disabled={isWeekOfMonth}
+                      onchange={handleDayOfMonthChange}>
+                    </lightning-combobox>
+                  </div>
+                  <span class="inline-label">of every month</span>
+                </div>
+
+                <!-- Option B: Week + day of month -->
+                <div class="radio-schedule-row">
+                  <input
+                    type="radio"
+                    name="monthlyType"
+                    value="week"
+                    checked={isWeekOfMonth}
+                    onchange={handleMonthlyTypeRadioChange}
+                    class="native-radio" />
+                  <span class="inline-label">On the</span>
+                  <div class="tiny-combobox">
+                    <lightning-combobox
+                      name="weekOfMonth"
+                      value={weekOfMonth}
+                      options={weekOptions}
+                      disabled={isDayOfMonth}
+                      onchange={handleWeekOfMonthChange}>
+                    </lightning-combobox>
+                  </div>
+                  <div class="tiny-combobox">
+                    <lightning-combobox
+                      name="monthlyDayOfWeek"
+                      value={monthlyDayOfWeek}
+                      options={dayOfWeekOptions}
+                      disabled={isDayOfMonth}
+                      onchange={handleMonthlyDayOfWeekChange}>
+                    </lightning-combobox>
+                  </div>
+                  <span class="inline-label">of every month</span>
+                </div>
+
+              </template>
+
+            </div>
+          </div>
+
+          <footer class="slds-modal__footer">
+            <button class="slds-button slds-button_neutral" onclick={closeScheduleModal}>Cancel</button>
+            <button class="slds-button slds-button_brand" onclick={confirmSchedule}>Schedule</button>
+          </footer>
+
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+  </lightning-card>
+
+  <!-- Running Jobs Section -->
+  <template if:true={isBackupInProgress}>
+    <div class="slds-card slds-m-bottom_medium job-status-card">
+
+      <div class="job-status-header">
+        <span class="job-status-title">Running Jobs</span>
+        <span class="job-status-badge">{jobRows.length}</span>
+      </div>
+
+      <div class="slds-p-around_small">
+        <template if:false={hasJobRows}>
+          <div class="spinner-container slds-align_absolute-center slds-p-around_medium">
+            <lightning-spinner size="small"></lightning-spinner>
+            <span class="slds-m-left_small">Fetching job details...</span>
+          </div>
+        </template>
+        <template if:true={hasJobRows}>
+          <lightning-datatable
+            key-field="jobId"
+            data={jobRows}
+            columns={jobColumns}
+            hide-checkbox-column
+            show-row-number-column
+            onrowaction={handleRowAction}>
+          </lightning-datatable>
+        </template>
+      </div>
+
+    </div>
+  </template>
+
+</template>

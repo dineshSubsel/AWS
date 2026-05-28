@@ -1,0 +1,95 @@
+/* Custom Card Container */
+.custom-card {
+    border: 1px solid #d8dde6;
+    border-radius: 0.25rem;
+    background-color: white;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.10);
+    margin: 0;
+}
+
+/* Card Header */
+.custom-card-header {
+    border-bottom: 1px solid #e0e5ee;
+    background-color: #f3f2f2;
+    padding: 0.5rem 1rem;
+}
+
+/* Card Body */
+.custom-card-body {
+    padding: 0;
+}
+
+/* Table Layout */
+.custom-table {
+    margin: 0;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Table Head */
+.custom-table th {
+    font-weight: 600;
+    background-color: #f3f2f2;
+    color: #3e3e3c;
+    padding: 0.4rem 0.75rem;
+    text-align: left;
+}
+
+/* File Name Link */
+.custom-table td a {
+    color: #0070d2;
+    text-decoration: underline;
+}
+
+/* Row Divider */
+.custom-table tr:not(:last-child) {
+    border-bottom: 1px solid #e0e5ee;
+}
+
+/* Row Hover */
+.custom-table tr:hover {
+    background-color: #f4f6f9;
+}
+
+/* Card Header Title */
+.custom-card-header h2 {
+    font-weight: bold;
+}
+
+/* Modal Header */
+.header {
+    padding: 5px 5px;
+}
+
+/* File Name Cell */
+.file-name-cell {
+    max-width: 200px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Fixed-Width Button Container */
+.fixed-width-container {
+    width: 104px;
+}
+
+.fixed-width-btn {
+    width: 100%;
+}
+
+.fixed-width-btn::part(button) {
+    width: 100%;
+    justify-content: center;
+}
+
+.button-Width{
+    /* width: 104px; */
+}
+
+.custom-padding {
+    padding-bottom: 12px;
+    margin-top: 0;
+    padding-top: 12px;
+}

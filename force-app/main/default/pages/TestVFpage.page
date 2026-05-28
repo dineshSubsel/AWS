@@ -1,0 +1,38 @@
+<apex:page standardController="Contact" lightningStylesheets="false" 
+          rendered="{!!CONTAINS($CurrentPage.URL, 'lightning.force.com')}" >
+    <apex:pageBlock title="File Uploader" mode="detail" id="block">
+        <apex:pageBlockSection columns="1">
+            <apex:includeLightning />
+            <div id="LightningComponentid" />
+
+            <style>
+                /* Hide the Lightning component container in Salesforce Lightning */
+                .hide-in-lightning {
+                    display: none;
+                }
+            </style>
+
+            <script>
+                var isClassic = '{!$User.UIThemeDisplayed}' === 'Theme3';
+            	var recordId = "{!$CurrentPage.parameters.id}"; 
+           		console.log(" Record id => ",recordId);
+
+                if (isClassic) {
+                    $Lightning.use("c:AWSFileManager1", function() {
+                        $Lightning.createComponent("c:aWSFileUpload",
+                            {recordId},
+                            "LightningComponentid",
+                            function(cmp) {
+                                console.log('AWSFileUploadComponent added in VF page');
+                            });
+                    });
+
+                } 
+                if(!isClassic) {
+                    // Add a class to hide the Lightning component container in Lightning
+                 document.getElementById('LightningComponentid').classList.add('hide-in-lightning');
+                }
+            </script>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+</apex:page>

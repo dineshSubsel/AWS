@@ -1,0 +1,324 @@
+/* ═══════════════════════════════════════════════════════════════
+   restoreRecycleBin.css  —  identical multiselect system as recyclebin.css
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── LAYOUT ────────────────────────────────────────────────────── */
+
+.custom-heading {
+    font-weight: 600;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.option-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #2f2f2e;
+}
+
+.or-text {
+    font-weight: 500;
+}
+
+/* ─── MULTISELECT WRAPPER ───────────────────────────────────────── */
+
+.multiselect-wrapper {
+    width: 100%;
+}
+
+/* ─── TRIGGER BOX ───────────────────────────────────────────────── */
+
+.ms-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid #777574;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ms-trigger:hover:not(.ms-trigger--disabled) {
+    border-color: #0176d3;
+    box-shadow: 0 0 0 1px #0176d3;
+}
+
+.ms-trigger--disabled {
+    background-color: #f3f3f3;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ─── TRIGGER INTERNALS ─────────────────────────────────────────── */
+
+.ms-placeholder {
+    flex: 1;
+    font-size: 0.8125rem;
+    color: #7e7c7c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ms-preview-text {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.8125rem;
+    color: #080707;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ms-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background-color: #0176d3;
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+
+.ms-arrow {
+    flex-shrink: 0;
+    color: #706e6b;
+    transition: transform 0.2s ease;
+}
+
+/* ─── DROPDOWN PANEL ────────────────────────────────────────────── */
+
+.ms-dropdown {
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 9000;
+    background: #fff;
+    border: 1px solid #777574;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    overflow: hidden;
+    min-width: 200px;
+}
+
+/* ─── SEARCH BOX ────────────────────────────────────────────────── */
+
+.ms-search {
+    padding: 6px 8px;
+    border-bottom: 1px solid #e5e5e5;
+    background: #fff;
+    top: 0;
+    z-index: 2;
+}
+
+/* ─── SELECT ALL ROW ────────────────────────────────────────────── */
+
+.ms-select-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #f8f8f8;
+    top: 0;
+    z-index: 1;
+    transition: background-color 0.15s ease;
+}
+
+.ms-select-all:hover {
+    background-color: #eaf4ff;
+}
+
+.ms-select-all:active {
+    background-color: #d6ecff;
+}
+
+.ms-select-all-label {
+    flex: 1;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #181818;
+}
+
+.ms-select-all-count {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: #747474;
+}
+
+/* ─── LIST ──────────────────────────────────────────────────────── */
+
+.ms-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    max-height: 220px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #c9c7c5 transparent;
+}
+
+.ms-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ms-list::-webkit-scrollbar-track {
+    background: #f3f2f2;
+}
+
+.ms-list::-webkit-scrollbar-thumb {
+    background: #c9c7c5;
+    border-radius: 3px;
+}
+
+.ms-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* ─── LIST ITEMS ────────────────────────────────────────────────── */
+
+.ms-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.8125rem;
+    color: #3e3e3c;
+    transition: background 0.1s ease;
+}
+
+.ms-item:hover {
+    background: #f3f2f2;
+}
+
+.ms-item--selected {
+    background: #eaf4ff;
+}
+
+.ms-item--selected:hover {
+    background: #d8ecff;
+}
+
+.ms-item--selected .ms-item-label {
+    color: #0176d3;
+    font-weight: 500;
+}
+
+.ms-item-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ms-no-results {
+    padding: 12px 14px;
+    font-size: 0.8125rem;
+    color: #a8a8a8;
+    text-align: center;
+    font-style: italic;
+}
+
+/* ─── CHECKBOX ──────────────────────────────────────────────────── */
+
+.ms-checkbox {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    border: 2px solid #dddbda;
+    border-radius: 3px;
+    background: #fff;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.ms-checkbox--checked {
+    background-color: #0176d3;
+    border-color: #0176d3;
+}
+
+.ms-check-icon {
+    width: 10px;
+    height: 10px;
+    stroke: #fff;
+    display: block;
+}
+
+/* ─── SUCCESS ALERT ─────────────────────────────────────────────── */
+
+.success-alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 4px;
+    background-color: #ecf9f0;
+    border: 1px solid #4bca81;
+    color: #27603c;
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+/* ─── ERROR TEXT ────────────────────────────────────────────────── */
+
+.slds-text-color_error {
+    color: #c23934;
+    font-size: 0.8125rem;
+}
+
+.job-status-card {
+    border: 1px solid #d8edff;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(1, 118, 211, 0.08);
+}
+
+.job-status-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #dddbda;
+    background: #f3f3f3;
+}
+
+.job-status-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #3e3e3c;
+}
+
+.job-status-badge {
+    margin-left: 8px;
+    background: #0070d2;
+    color: #fff;
+    border-radius: 12px;
+    padding: 1px 8px;
+    font-size: 12px;
+}
+
+.job-status-body {
+    padding: 12px;
+    min-height: 60px;
+}

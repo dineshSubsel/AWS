@@ -1,0 +1,219 @@
+<template>
+	<div class="slds-p-bottom_xx-small">
+		<div class="slds-page-header">
+			<div class="slds-page-header__row">
+				<div class="slds-page-header__col-title">
+					<div class="slds-media">
+						<div class="slds-media__figure">
+							<lightning-icon icon-name="standard:search" alternative-text="Search"></lightning-icon>
+						</div>
+						<div class="slds-media__body">
+							<h1>
+								<span class="slds-page-header__title slds-truncate" title="Advanced File Search">Advanced File Search</span>
+							</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<article class="slds-card">
+		<div class="slds-card__body slds-card__body_inner slds-p-bottom_small">
+			<div class="slds-grid slds-wrap slds-gutters_xxx-small slds-p-around_small">
+				<div class="slds-col slds-size_1-of-1 slds-large-size_10-of-12">
+					<lightning-input type="text" label="Enter the File Name to Search" value={searchTerm}
+						onchange={searchval}></lightning-input>
+				</div>
+				<div
+					class="slds-col slds-align_absolute-center slds-size_1-of-2 slds-large-size_1-of-12 slds-p-top_large ">
+					<lightning-button-stateful label-when-off="Filter" label-when-on="Remove" label-when-hover="Remove"
+						icon-name-when-off="action:filter" icon-name-when-on="action:remove"
+						icon-name-when-hover="utility:close" variant="brand" selected={showfilter} onclick={addfilter}>
+					</lightning-button-stateful>
+				</div>
+				<div
+					class="slds-col slds-align_absolute-center slds-size_1-of-2 slds-large-size_1-of-12 slds-p-top_large">
+					<lightning-button variant="destructive" icon-name="utility:clear" label="Clear" title="Search"
+						onclick={handleClearClick}></lightning-button>
+				</div>
+			</div>
+			<template lwc:if={showfilter}>
+				<div class="slds-grid slds-wrap slds-gutters_xxx-small slds-p-around_small">
+					<div class="slds-col  slds-size_1-of-1 slds-large-size_1-of-3">
+						<lightning-combobox name="Filter name" label="Filter name" value={filter}
+							placeholder="Select Filter" options={filterOptions} onchange={handleChangefilter}>
+						</lightning-combobox>
+					</div>
+					<div class="slds-col  slds-size_1-of-1 slds-large-size_1-of-3">
+						<template if:false={istype}>
+							<template if:false={isdate}>
+								<lightning-combobox name="Operator" label="Operator" value={operator}
+									placeholder="Select Operator" options={operatorOptions}
+									onchange={handleChangeoperator}></lightning-combobox>
+							</template>
+							<template if:true={isdate}>
+								<lightning-combobox name="Operator" label="Operator" value={operator}
+									placeholder="Select Operator" options={operatorOptions2}
+									onchange={handleChangeoperator}></lightning-combobox>
+							</template>
+						</template>
+						<template if:true={istype}>
+							<lightning-combobox name="Operator" label="Operator" value={operator}
+								placeholder="Select Operator" options={operatorOptions2}
+								onchange={handleChangeoperator}></lightning-combobox>
+						</template>
+
+					</div>
+					<div class="slds-col  slds-size_1-of-1 slds-large-size_1-of-3">
+						<template if:false={istype}>
+							<template if:false={isdate}>
+								<lightning-input type="text" variant="standard" name="Value" label="Value"
+									value={filervalue} onchange={valuechange}></lightning-input>
+							</template>
+							<template if:true={isdate}>
+								<lightning-input type="date" variant="standard" name="Value" label="Value"
+									placeholder="Select the Date.." value={filervalue} onchange={valuechange}>
+								</lightning-input>
+							</template>
+						</template>
+						<template if:true={istype}>
+							<lightning-combobox name="File Type" label="File Type" value={filervalue}
+								placeholder="Select Type" options={typeOptions} onchange={valuechange}>
+							</lightning-combobox>
+						</template>
+					</div>
+				</div>
+				<div class="slds-grid slds-wrap slds-gutters_xxx-small slds-p-around_small slds-grid_align-end">
+					<div class="slds-col slds-align_absolute-center slds-large-size_10-of-12">
+					</div>
+					<div class="slds-col slds-align_absolute-center slds-size_1-of-1 slds-large-size_1-of-12">
+						<lightning-button variant="brand" label="Apply" title="Apply" onclick={handlefilterClick}>
+						</lightning-button>
+					</div>
+					<div class="slds-col slds-align_absolute-center slds-size_1-of-1 slds-large-size_1-of-12">
+						<lightning-button variant="brand" label="Clear" title="Clear" onclick={handleclearClick}>
+						</lightning-button>
+					</div>
+				</div>
+
+			</template>
+			<template if:true={isdataTable}>
+				<lightning-card title={uiname} icon-name="standard:file">
+					<ul class=" slds-has-dividers_around slds-has-block-links_space">
+						<template for:each={dataTable} for:item="file">
+							<li key={file.id}>
+								<div class="slds-tile slds-media slds-p-around_x-small ">
+									<div class="slds-media__figure slds-p-around_medium">
+										<lightning-icon key={file.Id} icon-name={file.File_Type__c}
+											alternative-text="Doc Type" size="small">
+										</lightning-icon>
+									</div>
+									<div class="slds-media__body ">
+										<p class="slds-truncate">
+											<a class="custom-padding custom-small-size" data-id={file.Id}
+												onclick={clickredirectButton}>{file.Parent_Name__c} -
+												{file.Parent_record_name__c}</a>
+										</p>
+										<p class="slds-truncate">
+											<a class="custom-padding custom-medium-size" data-id={file.Id}
+												onclick={handleButtonClick}>{file.File_Name__c}</a>
+										</p>
+										<div class="slds-tile__detail slds-text-body--small">
+											<ul class="slds-list_horizontal slds-has-dividers_right ">
+												<!-- <li class="slds-item">{file.Parent_Name__c}</li> -->
+												<li class="slds-item">{file.CreatedDate}</li>
+												<li class="slds-item">{file.File_sizes__c}</li>
+												<li class="slds-item">{file.CreatedBy.Name}</li>
+											</ul>
+										</div>
+									</div>
+
+									<div class="slds-no-flex">
+
+										<lightning-button label="Download" icon-name="utility:download" value={file}
+											onclick={handleButtonClick}>
+										</lightning-button>
+
+									</div>
+								</div>
+							</li>
+						</template>
+					</ul>
+				</lightning-card>
+			</template>
+			<template if:false={isdataTable}>
+				<div class="slds-align_absolute-center slds-p-vertical_xx-large">
+					<img src={imagesrc} alt="No files Found">
+				</div>
+			</template>
+			<template if:true={spinner}>
+				<lightning-spinner variant="brand" alternative-text="Loading" size="large"></lightning-spinner>
+			</template>
+		</div>
+		<template if:true={showModal}>
+			<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+				class="slds-modal slds-fade-in-open slds-modal_full">
+				<div class="slds-modal__container">
+					<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handleCloseModal}>
+                  <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+               </button>
+					<div class="slds-modal__header">
+						<h1 id="modal-heading-03" class="slds-modal__title slds-hyphenate">Preview
+						</h1>
+					</div>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
+						<template if:true={url}>
+							<iframe src={url} height="100%" width="100%" title="techdicer"></iframe>
+						</template>
+						<template if:false={url}>{urlerror}</template>
+					</div>
+					<div class="slds-modal__footer">
+						<button class="slds-button slds-button_brand" aria-label="Cancel and close" onclick={handleCloseModal}>Close</button>
+					</div>
+				</div>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open" role="presentation">
+			</div>
+		</template>
+		<template if:true={isgetrecent}>
+			<footer class="slds-card__footer">
+				<div class="slds-align_absolute-center">
+					<div class="slds-p-right_xx-small">
+						<lightning-button label="Prev" disabled={isPrev} onclick={handlePagePrevAction} variant="brand"
+							icon-name="utility:back" name="prev"></lightning-button>
+					</div>
+					<span class="slds-badge slds-badge_lightest">{recordStart}-{recordEnd} of {totalRecords} | Page {pageNumber} of {totalPages}</span>
+					<div class="slds-p-left_xx-small">
+						<lightning-button label="Next" disabled={isNext} onclick={handlePageNextAction} variant="brand"
+							icon-name="utility:forward" icon-position="right" name="next">
+						</lightning-button>
+					</div>
+				</div>
+			</footer>
+		</template>
+	</article>
+	<template if:true={showModal}>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+			class="slds-modal slds-fade-in-open slds-modal_full">
+			<div class="slds-modal__container">
+				<button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={handleCloseModal}>
+                  <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+               </button>
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Preview</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+					<template if:true={url}>
+						<iframe src={url} height="100%" width="100%" title="techdicer"></iframe>
+					</template>
+					<template if:false={url}>{urlerror}</template>
+				</div>
+				<div class="slds-modal__footer">
+					<button class="slds-button slds-button_brand" aria-label="Cancel and close" onclick={handleCloseModal}>Close</button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+</template>

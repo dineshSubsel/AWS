@@ -1,0 +1,680 @@
+<template>
+    <!-- Page Header -->
+    <div class="slds-p-bottom_xx-small">
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon class="icon" icon-name="standard:file" alternative-text="Recycle Bin Vault">
+                            </lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h1 class="header">
+                                <span class="slds-page-header__title slds-truncate" title="Recycle Bin Vault">Recycle Bin Vault</span>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <template if:false={showRestorePage}>
+        <lightning-card>
+            <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+
+                <!-- STEP 1 : Option Selection -->
+                <template if:true={showOptionSelection}>
+                    <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">
+                        Select an option
+                    </div>
+                    <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center">
+                        <div class="option-item">
+                            <lightning-input type="radio" variant="label-hidden" name="action" value="backup"
+                                checked={isBackupSelected} onchange={handleSelection}>
+                            </lightning-input>
+                            <span class="option-label">Backup</span>
+                            <lightning-helptext
+                                content="Create a secure copy of deleted (Recycle Bin) records and store them in the vault for future recovery.">
+                            </lightning-helptext>
+                        </div>
+                        <div class="or-text slds-m-horizontal_large">or</div>
+                        <div class="option-item">
+                            <lightning-input type="radio" variant="label-hidden" name="action" value="restore"
+                                checked={isRestoreSelected} onchange={handleSelection}>
+                            </lightning-input>
+                            <span class="option-label">Restore</span>
+                            <lightning-helptext
+                                content="Retrieve previously backed-up records from the vault and restore them back into Salesforce.">
+                            </lightning-helptext>
+                        </div>
+                    </div>
+                    <div class="slds-text-align_right slds-m-top_large">
+                        <lightning-button label="Next" variant="brand" disabled={isNextDisabled} onclick={handleNext}>
+                        </lightning-button>
+                    </div>
+                </template>
+
+                <!-- STEP 2 : Backup Type -->
+                <template if:true={showBackupOptions}>
+                    <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">
+                        Select Backup Type
+                    </div>
+                    <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center">
+                        <div class="option-item">
+                            <lightning-input type="radio" variant="label-hidden" name="backupType" value="instant"
+                                checked={isInstantSelected} onchange={handleBackupType}>
+                            </lightning-input>
+                            <span class="option-label">Instant Backup</span>
+                            <lightning-helptext
+                                content="Immediately back up selected Recycle Bin records. Use this option for quick, one-time backups.">
+                            </lightning-helptext>
+                        </div>
+                        <div class="or-text slds-m-horizontal_large">or</div>
+                        <div class="option-item">
+                            <lightning-input type="radio" variant="label-hidden" name="backupType" value="schedule"
+                                checked={isScheduleSelected} onchange={handleBackupType}>
+                            </lightning-input>
+                            <span class="option-label">Schedule Backup</span>
+                            <lightning-helptext
+                                content="Automate backups by scheduling them at regular intervals (daily, weekly, etc.) without manual intervention.">
+                            </lightning-helptext>
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                        <lightning-button label="Back" onclick={handleBack}></lightning-button>
+                        <lightning-button label="Next" variant="brand" disabled={isBackupNextDisabled}
+                            onclick={handleBackupNext}>
+                        </lightning-button>
+                    </div>
+                </template>
+
+                <!-- STEP 3 : Instant Backup -->
+                <template if:true={showSearchPage}>
+                    <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">
+                        Instant Backup
+                    </div>
+
+                    <template if:true={isLoadingObjectTypes}>
+                        <div class="slds-align_absolute-center slds-p-around_medium">
+                            <lightning-spinner alternative-text="Scanning Recycle Bin..." size="small">
+                            </lightning-spinner>
+                            <span class="slds-m-left_small slds-text-color_weak">Scanning Recycle Bin...</span>
+                        </div>
+                    </template>
+
+                    <template if:false={isLoadingObjectTypes}>
+                        <div class="slds-grid slds-wrap slds-grid_align-center">
+                            <div class="slds-col slds-size_10-of-12">
+                                <div class="slds-grid slds-gutters">
+
+                                    <!-- Object Type Multi-Select -->
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <div class="multiselect-wrapper slds-is-relative">
+                                            <label class="slds-form-element__label">
+                                                <abbr class="slds-required" title="required">*</abbr>
+                                                Select Objects
+                                            </label>
+                                            <div class={objectTriggerClass} onclick={toggleObjectDropdown}>
+                                                <template if:true={hasSelectedObjectTypes}>
+                                                    <span class="ms-preview-text">{selectedObjectTypeLabels}</span>
+                                                    <span class="ms-badge">{selectedObjectTypesCount}</span>
+                                                    <lightning-button-icon icon-name="utility:close"
+                                                        alternative-text="Clear" variant="bare" size="small"
+                                                        onclick={clearObjectTypes}>
+                                                    </lightning-button-icon>
+                                                </template>
+                                                <template if:false={hasSelectedObjectTypes}>
+                                                    <span class="ms-placeholder">Choose Objects</span>
+                                                    <lightning-icon icon-name="utility:down" size="x-small"
+                                                        class="ms-arrow">
+                                                    </lightning-icon>
+                                                </template>
+                                            </div>
+                                            <template if:true={isObjectDropdownOpen}>
+                                                <div class="ms-dropdown slds-is-absolute">
+                                                    <div class="ms-search slds-is-relative" onclick={stopPropagation}>
+                                                        <lightning-input type="search" variant="label-hidden"
+                                                            placeholder="Search objects..." value={objectSearchTerm}
+                                                            onchange={handleObjectSearch}>
+                                                        </lightning-input>
+                                                    </div>
+                                                    <div class="ms-select-all slds-is-relative"
+                                                        onclick={toggleSelectAllObjectTypes}>
+                                                        <template if:true={isSelectAllObjectTypesLoading}>
+                                                            <div class="ms-select-all-spinner">
+                                                                <lightning-spinner alternative-text="Loading..."
+                                                                    size="small" variant="brand">
+                                                                </lightning-spinner>
+                                                            </div>
+                                                        </template>
+                                                        <template if:false={isSelectAllObjectTypesLoading}>
+                                                            <span class={selectAllObjectTypesCheckboxClass}>
+                                                                <template if:true={isAllObjectTypesSelected}>
+                                                                    <svg class="ms-check-icon"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="3">
+                                                                        <polyline points="20 6 9 17 4 12" />
+                                                                    </svg>
+                                                                </template>
+                                                            </span>
+                                                            <span class="ms-item-label ms-select-all-label">
+                                                                Select All
+                                                            </span>
+                                                            <span class="ms-select-all-count">
+                                                                ({objectTypeOptions.length})
+                                                            </span>
+                                                        </template>
+                                                    </div>
+                                                    <ul class="ms-list">
+                                                        <template if:true={hasFilteredObjectTypes}>
+                                                            <template for:each={filteredObjectTypes} for:item="obj">
+                                                                <li key={obj.value} class={obj.itemClass}
+                                                                    data-value={obj.value}
+                                                                    onclick={handleObjectTypeToggle}>
+                                                                    <span class={obj.checkboxClass}>
+                                                                        <template if:true={obj.checked}>
+                                                                            <svg class="ms-check-icon"
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="3">
+                                                                                <polyline points="20 6 9 17 4 12" />
+                                                                            </svg>
+                                                                        </template>
+                                                                    </span>
+                                                                    <span class="ms-item-label">{obj.label}</span>
+                                                                </li>
+                                                            </template>
+                                                        </template>
+                                                        <template if:false={hasFilteredObjectTypes}>
+                                                            <li class="ms-no-results">No objects found</li>
+                                                        </template>
+                                                    </ul>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <!-- Record Multi-Select -->
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <div class="multiselect-wrapper slds-is-relative">
+                                            <label class="slds-form-element__label">Select Records</label>
+
+                                            <!-- Spinner while loading records -->
+                                            <template if:true={isLoadingRecords}>
+                                                <div class="slds-align_absolute-center slds-p-around_small">
+                                                    <lightning-spinner alternative-text="Loading records..."
+                                                        size="small">
+                                                    </lightning-spinner>
+                                                </div>
+                                            </template>
+
+                                            <template if:false={isLoadingRecords}>
+                                                <div class={recordTriggerClass} onclick={toggleRecordDropdown}>
+                                                    <template if:true={hasSelectedRecords}>
+                                                        <span class="ms-preview-text">{selectedRecordLabels}</span>
+                                                        <span class="ms-badge">{selectedRecordsCount}</span>
+                                                        <lightning-button-icon icon-name="utility:close"
+                                                            alternative-text="Clear" variant="bare" size="small"
+                                                            onclick={clearRecords}>
+                                                        </lightning-button-icon>
+                                                    </template>
+                                                    <template if:false={hasSelectedRecords}>
+                                                        <span class="ms-placeholder">
+                                                            <template if:true={isNoObjectSelected}>
+                                                                Select an Object to Continue
+                                                            </template>
+                                                        
+                                                            <template if:true={isMultipleObjectsSelected}>
+                                                                Multiple objects selected
+                                                            </template>
+                                                        
+                                                            <template if:true={isSingleObjectSelected}>
+                                                                <template if:true={noRecordsAvailable}>
+                                                                    No Records available
+                                                                </template>
+                                                                <template if:false={noRecordsAvailable}>
+                                                                    Select an Object to Continue
+                                                                </template>
+                                                            </template>
+                                                        </span>
+                                                        <lightning-icon icon-name="utility:down" size="x-small"
+                                                            class="ms-arrow">
+                                                        </lightning-icon>
+                                                    </template>
+                                                </div>
+
+                                                <template if:true={isRecordDropdownOpen}>
+                                                    <div class="ms-dropdown slds-is-absolute">
+                                                        <div class=" slds-is-relative" onclick={stopPropagation}>
+                                                            <lightning-input type="search" variant="label-hidden"
+                                                                placeholder="Search records..." value={recordSearchTerm}
+                                                                onchange={handleRecordSearch}>
+                                                            </lightning-input>
+                                                        </div>
+                                                        <div class="ms-select-all slds-is-relative"
+                                                            onclick={toggleSelectAllRecords}>
+                                                            <template if:true={isSelectAllRecordsLoading}>
+                                                                <div class="ms-select-all-spinner">
+                                                                    <lightning-spinner alternative-text="Loading..."
+                                                                        size="small" variant="brand">
+                                                                    </lightning-spinner>
+                                                                </div>
+                                                            </template>
+                                                            <template if:false={isSelectAllRecordsLoading}>
+                                                                <span class={selectAllRecordsCheckboxClass}>
+                                                                    <template if:true={isAllRecordsSelected}>
+                                                                        <svg class="ms-check-icon"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            viewBox="0 0 24 24" fill="none"
+                                                                            stroke="currentColor" stroke-width="3">
+                                                                            <polyline points="20 6 9 17 4 12" />
+                                                                        </svg>
+                                                                    </template>
+                                                                </span>
+                                                                <span class="ms-item-label ms-select-all-label">
+                                                                    Select All
+                                                                </span>
+                                                                <span class="ms-select-all-count">
+                                                                    ({recordOptions.length})
+                                                                </span>
+                                                            </template>
+                                                        </div>
+                                                        <ul class="ms-list">
+                                                            <template if:true={hasFilteredRecords}>
+                                                                <template for:each={filteredRecords} for:item="rec">
+                                                                    <li key={rec.value} class={rec.itemClass}
+                                                                        data-value={rec.value}
+                                                                        onclick={handleRecordToggle}>
+                                                                        <span class={rec.checkboxClass}>
+                                                                            <template if:true={rec.checked}>
+                                                                                <svg class="ms-check-icon"
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                    viewBox="0 0 24 24" fill="none"
+                                                                                    stroke="currentColor" stroke-width="3">
+                                                                                    <polyline points="20 6 9 17 4 12" />
+                                                                                </svg>
+                                                                            </template>
+                                                                        </span>
+                                                                        <span class="ms-item-label">{rec.label}</span>
+                                                                    </li>
+                                                                </template>
+                                                            </template>
+                                                            <template if:false={hasFilteredRecords}>
+                                                                <li class="ms-no-results">No records found</li>
+                                                            </template>
+                                                        </ul>
+                                                    </div>
+                                                </template>
+
+                                                <!-- Multiple Objects Info -->
+                                                <template if:true={isMultipleObjectsSelected}>
+                                                    <p
+                                                        class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                                        <lightning-icon icon-name="utility:info" size="xx-small"
+                                                            class="slds-m-right_xx-small">
+                                                        </lightning-icon>
+                                                        Record selection unavailable when multiple objects are selected.
+                                                    </p>
+                                                </template>
+
+                                                <!-- No Records Error -->
+                                                <template if:true={noRecordsAvailable}>
+                                                    <p
+                                                        class="slds-text-body_small slds-text-color_error slds-m-top_xx-small">
+                                                        <lightning-icon icon-name="utility:error" size="xx-small"
+                                                            class="slds-m-right_xx-small">
+                                                        </lightning-icon>
+                                                        No Records available
+                                                    </p>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <template if:true={errorMessage}>
+                                    <div class="slds-m-top_medium">
+                                        <lightning-formatted-text value={errorMessage} class="slds-text-color_error">
+                                        </lightning-formatted-text>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                        <lightning-button label="Back" disabled={isBackupInProgress} onclick={handleSearchBack}>
+                        </lightning-button>
+                        <lightning-button label="Start Backup" variant="brand" disabled={isStartBackupDisabled}
+                            onclick={startMigration}>
+                        </lightning-button>
+                    </div>
+                </template>
+
+                <!-- STEP 4 : Schedule Backup -->
+                <template if:true={showSchedulePage}>
+                    <div class="slds-text-heading_small slds-m-bottom_medium custom-heading">
+                        Schedule Backup
+                    </div>
+
+                    <template if:true={isLoadingObjectTypes}>
+                        <div class="slds-align_absolute-center slds-p-around_medium">
+                            <lightning-spinner alternative-text="Scanning Recycle Bin..." size="small">
+                            </lightning-spinner>
+                            <span class="slds-m-left_small slds-text-color_weak">Scanning Recycle Bin...</span>
+                        </div>
+                    </template>
+
+                    <template if:false={isLoadingObjectTypes}>
+                        <div class="slds-grid slds-wrap slds-grid_align-center">
+                            <div class="slds-col slds-size_10-of-12">
+                                <div class="slds-grid slds-gutters slds-wrap">
+
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <lightning-combobox label="Select Frequency" value={scheduleFrequency}
+                                            placeholder="Select an Option" options={frequencyOptions}
+                                            onchange={handleFrequencyChange} required>
+                                        </lightning-combobox>
+                                    </div>
+
+                                    <!-- Object Type Multi-Select -->
+                                    <div class="slds-col slds-size_1-of-2">
+                                        <div class="multiselect-wrapper slds-is-relative">
+                                            <label class="slds-form-element__label">
+                                                <abbr class="slds-required" title="required">*</abbr>
+                                                Select Object Type
+                                            </label>
+                                            <div class={scheduleObjectTriggerClass}
+                                                onclick={toggleScheduleObjectDropdown}>
+                                                <template if:true={hasScheduleSelectedObjectTypes}>
+                                                    <span class="ms-preview-text">{scheduleSelectedObjectTypeLabels}</span>
+                                                    <span class="ms-badge">{scheduleSelectedObjectTypesCount}</span>
+                                                    <lightning-button-icon icon-name="utility:close"
+                                                        alternative-text="Clear" variant="bare" size="small"
+                                                        onclick={clearScheduleObjectTypes}>
+                                                    </lightning-button-icon>
+                                                </template>
+                                                <template if:false={hasScheduleSelectedObjectTypes}>
+                                                    <span class="ms-placeholder">Choose Objects</span>
+                                                    <lightning-icon icon-name="utility:down" size="x-small"
+                                                        class="ms-arrow">
+                                                    </lightning-icon>
+                                                </template>
+                                            </div>
+                                            <template if:true={isScheduleObjectDropdownOpen}>
+                                                <div class="ms-dropdown slds-is-absolute">
+                                                    <div class="ms-search slds-is-relative" onclick={stopPropagation}>
+                                                        <lightning-input type="search" variant="label-hidden"
+                                                            placeholder="Search objects..."
+                                                            value={scheduleObjectSearchTerm}
+                                                            onchange={handleScheduleObjectSearch}>
+                                                        </lightning-input>
+                                                    </div>
+                                                    <div class="ms-select-all slds-is-relative"
+                                                        onclick={toggleScheduleSelectAllObjectTypes}>
+                                                        <template if:true={isSelectAllObjectTypesLoading}>
+                                                            <div class="ms-select-all-spinner">
+                                                                <lightning-spinner alternative-text="Loading..."
+                                                                    size="small" variant="brand">
+                                                                </lightning-spinner>
+                                                            </div>
+                                                        </template>
+                                                        <template if:false={isSelectAllObjectTypesLoading}>
+                                                            <span class={scheduleSelectAllObjectTypesCheckboxClass}>
+                                                                <template if:true={isScheduleAllObjectTypesSelected}>
+                                                                    <svg class="ms-check-icon"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        viewBox="0 0 24 24" fill="none"
+                                                                        stroke="currentColor" stroke-width="3">
+                                                                        <polyline points="20 6 9 17 4 12" />
+                                                                    </svg>
+                                                                </template>
+                                                            </span>
+                                                            <span class="ms-item-label ms-select-all-label">
+                                                                Select All
+                                                            </span>
+                                                            <span class="ms-select-all-count">
+                                                                ({scheduleObjectTypeOptions.length})
+                                                            </span>
+                                                        </template>
+                                                    </div>
+                                                    <ul class="ms-list">
+                                                        <template if:true={hasFilteredScheduleObjectTypes}>
+                                                            <template for:each={filteredScheduleObjectTypes}
+                                                                for:item="obj">
+                                                                <li key={obj.value} class={obj.itemClass}
+                                                                    data-value={obj.value}
+                                                                    onclick={handleScheduleObjectTypeToggle}>
+                                                                    <span class={obj.checkboxClass}>
+                                                                        <template if:true={obj.checked}>
+                                                                            <svg class="ms-check-icon"
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                viewBox="0 0 24 24" fill="none"
+                                                                                stroke="currentColor" stroke-width="3">
+                                                                                <polyline points="20 6 9 17 4 12" />
+                                                                            </svg>
+                                                                        </template>
+                                                                    </span>
+                                                                    <span class="ms-item-label">{obj.label}</span>
+                                                                </li>
+                                                            </template>
+                                                        </template>
+                                                        <template if:false={hasFilteredScheduleObjectTypes}>
+                                                            <li class="ms-no-results">No objects found</li>
+                                                        </template>
+                                                    </ul>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                    <div class="slds-col slds-size_1-of-2 slds-m-top_medium">
+                                        <lightning-combobox label="Backup Time" placeholder="Select a Time"
+                                            value={scheduleBackupTime} options={backupTimeOptions}
+                                            onchange={handleBackupTimeChange} required>
+                                        </lightning-combobox>
+                                    </div>
+
+                                    <!-- Record Multi-Select -->
+                                    <div class="slds-col slds-size_1-of-2 slds-m-top_medium">
+                                        <div class="multiselect-wrapper slds-is-relative">
+                                            <label class="slds-form-element__label">Select Records</label>
+
+                                            <!-- Spinner while loading records -->
+                                            <template if:true={isScheduleLoadingRecords}>
+                                                <div class="slds-align_absolute-center slds-p-around_small">
+                                                    <lightning-spinner alternative-text="Loading records..."
+                                                        size="small">
+                                                    </lightning-spinner>
+                                                </div>
+                                            </template>
+
+                                            <template if:false={isScheduleLoadingRecords}>
+                                                <div class={scheduleRecordTriggerClass}
+                                                    onclick={toggleScheduleRecordDropdown}>
+                                                    <template if:true={hasScheduleSelectedRecords}>
+                                                        <span class="ms-preview-text">{scheduleSelectedRecordLabels}</span>
+                                                        <span class="ms-badge">{scheduleSelectedRecordsCount}</span>
+                                                        <lightning-button-icon icon-name="utility:close"
+                                                            alternative-text="Clear" variant="bare" size="small"
+                                                            onclick={clearScheduleRecords}>
+                                                        </lightning-button-icon>
+                                                    </template>
+                                                    <template if:false={hasScheduleSelectedRecords}>
+                                                        <span class="ms-placeholder">
+                                                            <template if:true={isScheduleNoObjectSelected}>
+                                                                Select an Object to Continue
+                                                            </template>
+                                                        
+                                                            <template if:true={isScheduleMultipleObjectsSelected}>
+                                                                Multiple objects selected
+                                                            </template>
+                                                        
+                                                            <template if:true={isScheduleSingleObjectSelected}>
+                                                                <template if:true={noScheduleRecordsAvailable}>
+                                                                    No Records available
+                                                                </template>
+                                                                <template if:false={noScheduleRecordsAvailable}>
+                                                                    Select an Object to Continue
+                                                                </template>
+                                                            </template>
+                                                        </span>
+                                                        <lightning-icon icon-name="utility:down" size="x-small"
+                                                            class="ms-arrow">
+                                                        </lightning-icon>
+                                                    </template>
+                                                </div>
+
+                                                <template if:true={isScheduleRecordDropdownOpen}>
+                                                    <div class="ms-dropdown slds-is-absolute">
+                                                        <div class="ms-search slds-is-relative"
+                                                            onclick={stopPropagation}>
+                                                            <lightning-input type="search" variant="label-hidden"
+                                                                placeholder="Search records..."
+                                                                value={scheduleRecordSearchTerm}
+                                                                onchange={handleScheduleRecordSearch}>
+                                                            </lightning-input>
+                                                        </div>
+                                                        <div class="ms-select-all slds-is-relative"
+                                                            onclick={toggleScheduleSelectAllRecords}>
+                                                            <template if:true={isSelectAllScheduleRecordsLoading}>
+                                                                <div class="ms-select-all-spinner">
+                                                                    <lightning-spinner alternative-text="Loading..."
+                                                                        size="small" variant="brand">
+                                                                    </lightning-spinner>
+                                                                </div>
+                                                            </template>
+                                                            <template if:false={isSelectAllScheduleRecordsLoading}>
+                                                                <span class={scheduleSelectAllRecordsCheckboxClass}>
+                                                                    <template if:true={isScheduleAllRecordsSelected}>
+                                                                        <svg class="ms-check-icon"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            viewBox="0 0 24 24" fill="none"
+                                                                            stroke="currentColor" stroke-width="3">
+                                                                            <polyline points="20 6 9 17 4 12" />
+                                                                        </svg>
+                                                                    </template>
+                                                                </span>
+                                                                <span class="ms-item-label ms-select-all-label">
+                                                                    Select All
+                                                                </span>
+                                                                <span class="ms-select-all-count">
+                                                                    ({scheduleRecordOptions.length})
+                                                                </span>
+                                                            </template>
+                                                        </div>
+                                                        <ul class="ms-list">
+                                                            <template if:true={hasFilteredScheduleRecords}>
+                                                                <template for:each={filteredScheduleRecords}
+                                                                    for:item="rec">
+                                                                    <li key={rec.value} class={rec.itemClass}
+                                                                        data-value={rec.value}
+                                                                        onclick={handleScheduleRecordToggle}>
+                                                                        <span class={rec.checkboxClass}>
+                                                                            <template if:true={rec.checked}>
+                                                                                <svg class="ms-check-icon"
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                    viewBox="0 0 24 24" fill="none"
+                                                                                    stroke="currentColor" stroke-width="3">
+                                                                                    <polyline points="20 6 9 17 4 12" />
+                                                                                </svg>
+                                                                            </template>
+                                                                        </span>
+                                                                        <span class="ms-item-label">{rec.label}</span>
+                                                                    </li>
+                                                                </template>
+                                                            </template>
+                                                            <template if:false={hasFilteredScheduleRecords}>
+                                                                <li class="ms-no-results">No records found</li>
+                                                            </template>
+                                                        </ul>
+                                                    </div>
+                                                </template>
+
+                                                <!-- Multiple Objects Info -->
+                                                <template if:true={isScheduleMultipleObjectsSelected}>
+                                                    <p
+                                                        class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                                                        <lightning-icon icon-name="utility:info" size="xx-small"
+                                                            class="slds-m-right_xx-small">
+                                                        </lightning-icon>
+                                                        Record selection unavailable when multiple objects are selected.
+                                                    </p>
+                                                </template>
+
+                                                <!-- No Records Error -->
+                                                <template if:true={noScheduleRecordsAvailable}>
+                                                    <p
+                                                        class="slds-text-body_small slds-text-color_error slds-m-top_xx-small">
+                                                        <lightning-icon icon-name="utility:error" size="xx-small"
+                                                            class="slds-m-right_xx-small">
+                                                        </lightning-icon>
+                                                        No Records available
+                                                    </p>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <template if:true={scheduleErrorMessage}>
+                                    <div class="slds-m-top_medium">
+                                        <lightning-formatted-text value={scheduleErrorMessage}
+                                            class="slds-text-color_error">
+                                        </lightning-formatted-text>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <div class="slds-grid slds-grid_align-spread slds-m-top_large">
+                        <lightning-button label="Back" disabled={isBackupInProgress} onclick={handleScheduleBack}>
+                        </lightning-button>
+                        <lightning-button label={scheduleButtonLabel} variant="brand" disabled={isScheduleDisabled}
+                            onclick={confirmSchedule}>
+                        </lightning-button>
+                    </div>
+                </template>
+
+            </div>
+        </lightning-card>
+    </template>
+
+    <template if:true={isBackupInProgress}>
+        <div class="job-status-card">
+            <div class="job-status-header">
+                <span class="job-status-title">Running Jobs</span>
+                <span class="job-status-badge">{jobRows.length}</span>
+            </div>
+            <div class="job-status-body">
+                <template if:true={hasJobRows}>
+                    <lightning-datatable key-field="jobId" data={jobRows} columns={jobColumns} hide-checkbox-column
+                        show-row-number-column resize-column-disabled onrowaction={handleRowAction}>
+                    </lightning-datatable>
+                </template>
+                <template if:false={hasJobRows}>
+                    <template if:true={isRestoring}>
+                        <div class="slds-align_absolute-center slds-p-around_medium">
+                            <lightning-spinner alternative-text="Loading job details..." size="small" variant="brand">
+                            </lightning-spinner>
+                            <span class="slds-m-left_small slds-text-color_weak">
+                Fetching job details...
+            </span>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </template>
+
+    <!-- STEP : Restore -->
+    <template if:true={showRestorePage}>
+        <c-restore-recycle-bin onback={handleRestoreBack}></c-restore-recycle-bin>
+    </template>
+</template>

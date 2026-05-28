@@ -1,0 +1,347 @@
+/* ===== Layout & Header ===== */
+.header {
+    transform: translateY(0.4rem);
+}
+
+.icon {
+    background-color: #0070d2;
+}
+
+.custom-label {
+    transform: translateY(-0.6rem);
+    font-weight: 500;
+}
+
+/* ===== Table ===== */
+.custom-table-container {
+    border: none !important;
+    border-radius: 0;
+    overflow: hidden;
+    background-color: transparent;
+}
+
+.table-padding {
+    padding: 0 1rem;
+}
+
+.custom-border-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: none !important;
+}
+
+.custom-border-table th,
+.custom-border-table td {
+    padding: 6px;
+    border: none !important;
+}
+
+.custom-border-table th {
+    background-color: white;
+    font-weight: bold;
+    height: 50px;
+    width: 8rem;
+}
+/* Search label styling */
+.custom-search-label {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+/* container */
+.search-container {
+    width: 100%;
+}
+
+/* row for input + buttons */
+.search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* input takes full space */
+.search-input {
+    flex: 1;
+}
+
+/* buttons same height as input */
+.search-btn {
+    height: 2.5rem;
+}
+
+/* Adjust spacing */
+.custom-search-field {
+    display: flex;
+    flex-direction: column;
+}
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.file-name-header {
+    text-align: left !important;
+}
+
+/* ===== File Type Badges ===== */
+.file-type-box {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 4px;
+    text-align: center;
+    min-width: 48px;
+}
+
+.file-type-jpeg {
+    background-color: rgba(60, 195, 223, 0.3);
+    color: #3CC3DF;
+}
+
+.file-type-pdf {
+    background-color: rgba(255, 146, 138, 0.3);
+    color: #FF928A;
+}
+
+.file-type-png {
+    background-color: #fdecea;
+    color: #c23934;
+}
+
+.file-type-txt {
+    background-color: rgba(226, 32, 161, 0.15);
+    color: #CF379C;
+}
+
+.file-type-xlsx {
+    background-color: rgba(164, 245, 166, 0.3);
+    color: #3DBA41;
+}
+
+.file-type-word {
+    background-color: rgba(25, 77, 223, 0.2);
+    color: #4C7AF8;
+}
+
+.file-type-ppt {
+    background-color: rgba(218, 215, 44, 0.2);
+    color: #E2A820;
+}
+
+.file-type-dll {
+    background-color: rgba(137, 121, 255, 0.3);
+    color: #9747FF;
+}
+
+.file-type-zip {
+    background-color: #CCCCCC;
+    color: #555555;
+}
+
+/* ===== Modal ===== */
+.slds-modal__container {
+    max-width: 90% !important;
+    width: 100% !important;
+}
+
+.slds-modal__content {
+    min-height: 75% !important;
+}
+
+.iframeSize {
+    height: 100%;
+    width: 100%;
+    border: none;
+}
+
+/* ===== Download Manager ===== */
+.download-backdrop {
+    position: fixed;  
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.download-manager {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    z-index: 10000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    width: 400px;
+}
+
+.download-manager h2 {
+    font-size: 24px;
+    color: #000;
+    margin: 0 0 12px 0;
+    background-color: #E8E8E8;
+    padding: 11px;
+    text-align: center;
+    box-shadow: 2px 3px 3px rgba(0, 0, 0, 0.2);
+    font-family: Arial, sans-serif;
+}
+
+.download-manager table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    font-family: Arial, sans-serif;
+}
+
+.download-manager td {
+    padding: 7px;
+}
+
+.download-manager td:first-child {
+    font-weight: bold;
+    color: #000;
+    width: 40%;
+}
+
+.download-manager td:last-child {
+    color: #000;
+    width: 60%;
+    text-align: center;
+    font-size: 15px;
+}
+
+.download-manager progress {
+    width: 100%;
+    height: 20px;
+    margin: 5px 0;
+}
+
+.download-manager progress::-webkit-progress-value {
+    background-color: #3498db;
+}
+
+.download-manager progress::-webkit-progress-bar {
+    background-color: #f2f2f2;
+}
+
+/* ===== Empty State ===== */
+.emptyMessage {
+    font-size: 20px;
+    font-weight: 400;
+}
+
+.empty-state-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.empty-state-icon {
+    --lwc-colorTextIconDefault: #c9c9c9;
+    opacity: 0.6;
+}
+
+.emptyMessage {
+    color: #888888;
+    font-size: 1rem;
+}
+
+/* ===== Misc ===== */
+.hidden-download-link {
+    display: none;
+}
+
+.footer_padding {
+    padding: 1rem 0rem 1rem 0rem;
+}
+.slds-icon-standard-file{
+    background-color: #0070d2;
+}
+
+
+/* Make all inputs same height */
+lightning-input,
+lightning-combobox {
+    display: block;
+}
+
+/* Inner input height fix */
+.slds-input,
+.slds-combobox__input {
+    height: 2.5rem !important;
+}
+
+
+
+
+/*  Error space reserve */
+/* Reserve enough space for error messages */
+.slds-form-element__help {
+    min-height: 2.5rem; /* ~40px */
+    display: block;
+}
+
+/*  Label + input consistent spacing */
+.slds-form-element {
+    margin-bottom: 0;
+}
+
+.invisible-label {
+    visibility: hidden;
+    display: block;
+}
+
+/*  Remove date format help text */
+lightning-input[type="date"] .slds-form-element__help {
+    display: none !important;
+}
+
+/*  search input error space reserve */
+.search-container .slds-form-element__help {
+    min-height: 20px;
+    display: block;
+}
+
+/*  prevent jump */
+.search-row {
+    align-items: flex-start; /* important */
+}
+/* ── Filter row: align all fields to the TOP so error messages don't shift siblings ── */
+.slds-grid_vertical-align-end .filter-field {
+    align-self: flex-start;
+}
+
+/* Reserve fixed space for error messages under ALL filter fields */
+.filter-field .slds-form-element__help,
+.filter-field [class*="slds-form-element__help"] {
+    min-height: 1.25rem;   /* ~20px — always reserve this space */
+    display: block;
+    visibility: visible;
+}
+
+/* Apply button: add a top offset equal to label height + input height 
+   so it lines up with the bottom of the inputs */
+.apply-btn {
+    padding-top: 1.5rem;   /* matches label height */
+}
+
+.apply-btn lightning-button {
+    top: unset;
+}
+
+.file-link {
+    color: #0176d3;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.file-link:hover {
+    color: #014486;
+}

@@ -1,0 +1,117 @@
+<template>
+    <div class="monitor-wrapper">
+
+        <!-- Header -->
+        <div class="monitor-header">
+            <h2 class="monitor-title">Batch job monitor</h2>
+            <button class="refresh-btn" onclick={handleRefresh} disabled={isLoading}>
+                <lightning-icon
+                    icon-name="utility:refresh"
+                    size="x-small"
+                    class={refreshIconClass}>
+                </lightning-icon>
+                Refresh
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-bar">
+            <template for:each={tabs} for:item="tab">
+                <button
+                    key={tab.value}
+                    class={tab.cssClass}
+                    data-value={tab.value}
+                    onclick={handleTab}>
+                    {tab.label}
+                    <template if:true={tab.count}>
+                        <span class="tab-count">{tab.count}</span>
+                    </template>
+                </button>
+            </template>
+        </div>
+
+        <!-- Loading -->
+        <template if:true={isLoading}>
+            <div class="loading-wrap">
+                <lightning-spinner size="small" alternative-text="Loading"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Empty state -->
+        <template if:false={isLoading}>
+            <template if:false={hasJobs}>
+                <div class="empty-state">
+                    <lightning-icon icon-name="utility:database" size="medium" class="empty-icon"></lightning-icon>
+                    <p>No {activeTabLabel} jobs in the last 24 hours.</p>
+                </div>
+            </template>
+
+            <!-- Job cards -->
+            <template if:true={hasJobs}>
+                <template for:each={filteredJobs} for:item="job">
+                    <div key={job.jobId} class="job-card">
+
+                        <!-- Card header -->
+                        <div class="card-head">
+                            <div class="card-head-left">
+                                <span class={job.dotClass}></span>
+                                <div>
+                                    <div class="job-name">{job.jobName}</div>
+                                    <div class="job-meta">{job.objectName} · started {job.startedAt}</div>
+                                </div>
+                            </div>
+                            <span class={job.badgeClass}>{job.status}</span>
+                        </div>
+
+                        <!-- Stat tiles -->
+                        <div class="stat-grid">
+                            <div class="stat-tile">
+                                <div class="stat-label">Total batches</div>
+                                <div class="stat-value">{job.totalBatches}</div>
+                            </div>
+                            <div class="stat-tile">
+                                <div class="stat-label">Done</div>
+                                <div class="stat-value">{job.batchesDone}</div>
+                            </div>
+                            <div class="stat-tile">
+                                <div class="stat-label">Success</div>
+                                <div class="stat-value success">{job.successCount}</div>
+                            </div>
+                            <div class="stat-tile">
+                                <div class="stat-label">Errors</div>
+                                <div class="stat-value error">{job.errorClass}</div>
+                            </div>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="bar-row">
+                            <span class="bar-label">Progress</span>
+                            <div class="bar-track">
+                                <div class="bar-fill progress" style={job.progressStyle}></div>
+                            </div>
+                            <span class="bar-pct">{job.progressPct}%</span>
+                        </div>
+
+                        <!-- Error bar (only when errors exist) -->
+                        <template if:true={job.hasErrors}>
+                            <div class="bar-row">
+                                <span class="bar-label">Errors</span>
+                                <div class="bar-track">
+                                    <div class="bar-fill error" style={job.errorStyle}></div>
+                                </div>
+                                <span class="bar-pct">{job.errorPct}%</span>
+                            </div>
+                        </template>
+
+                        <!-- Card footer -->
+                        <div class="card-footer">
+                            Batch size: 10 &nbsp;·&nbsp; Job ID: {job.jobId}
+                        </div>
+
+                    </div>
+                </template>
+            </template>
+        </template>
+
+    </div>
+</template>

@@ -1,0 +1,34 @@
+<apex:page id="Page" standardController="Account" docType="HTML-5.0" extensions="RelatedAWSPage">
+    
+    <script>
+    	
+    </script>
+    
+    <apex:form >
+    
+	<apex:pageBlock id="Table" >
+        
+            <apex:pageBlockTable value="{!NotesList}" var="n" >
+                <apex:column headerValue="Actions" >
+                    <apex:commandLink value="Edit" action="{!HandleEdit}" target="_blank" >
+                        <apex:param name="NoteID" value="{!n.id}"/>
+                    </apex:commandLink>
+                    | 
+                    <apex:commandLink value="Del" action="{!HandleDelete}" reRender="Page,Table" >
+                        <apex:param name="NoteID" value="{!n.id}"/>
+                    </apex:commandLink>
+                </apex:column>
+                <apex:column headerValue="Type" >
+                    <apex:outputText rendered="{!n.isnote}" >Note</apex:outputText>
+                    <apex:outputText rendered="{!NOT(n.isnote)}" >Attachment</apex:outputText>
+                </apex:column>
+                <apex:column headerValue="Title" value="{!n.title}" />
+                <apex:column headerValue="Last Modified" value="{!n.LastModifiedDate}" />
+                <apex:column headerValue="Created By" value="{!n.createdby.name}" />
+            </apex:pageBlockTable>
+        
+        
+    </apex:pageBlock>
+    </apex:form>
+    
+</apex:page>

@@ -1,0 +1,35 @@
+.slds-card
+{
+    height: 100%;
+}
+.customheader{
+    background-color:#f3f3f3 !important;
+    padding-bottom: 12px;
+    border-radius: 1px;
+}
+.customfig{
+    background-color: white;
+    padding: 2px;
+}
+.slds-modal__container {
+    max-width: 90% !important;
+    width: 100% !important;
+}
+.slds-modal__content
+    
+{
+    min-height: 75% !important;
+}
+.exampleHolder{
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}
+.icon-shrink:hover {
+    transform: scale(1.3);
+}
+.vertical-padding{
+    padding-top: 11.5px;
+    padding-bottom: 11.5px;
+}

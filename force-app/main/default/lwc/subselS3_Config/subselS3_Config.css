@@ -1,0 +1,57 @@
+/* ===== Layout & Header ===== */
+.header {
+    transform: translateY(0.4rem);
+}
+
+.icon {
+    background-color: #0070d2;
+}
+
+.aws-title{
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.aws-setting {
+    font-family: Inter, sans-serif;
+    font-weight: 200;
+    font-size: 26px;
+    text-align: center;
+    color: #080808;
+    margin: 20px auto; 
+    max-width: 80%;
+}
+
+.aws-description {
+    font-family: Inter, sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    text-align: center;
+    color: #333;
+    margin-bottom: 32px;
+    padding: 4px;
+}
+
+.highlight {
+    color: rgb(173, 173, 3);
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+}
+
+.slds-gutters {             
+    padding : 150px;             
+    padding-top : 20px;
+    margin-bottom: 130px;     
+}
+
+.btnCss{
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    font-size: 15px;
+}

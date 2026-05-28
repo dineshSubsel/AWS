@@ -1,0 +1,46 @@
+<template>
+	<div class="slds-p-bottom_xx-small">
+		<div class="slds-page-header">
+			<div class="slds-page-header__row">
+				<div class="slds-page-header__col-title">
+					<div class="slds-media">
+						<div class="slds-media__figure">
+							<lightning-icon class="icon" icon-name="standard:folder" alternative-text="Folder">
+							</lightning-icon>
+						</div>
+						<div class="slds-media__body">
+							<h1 class="header">
+								<span class="slds-page-header__title slds-truncate" title="File Insights">File Insights</span>
+							</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<div class="slds-grid slds-gutters_xxx-small">
+		<div class="slds-col slds-size_4-of-12 ">
+			<article class="slds-card">
+				<template if:true={showComp}>
+					<div class="slds-card__body slds-card__body_inner">
+						<lightning-tree items={items} onselect={handleOnselect} class="tree-item"
+							selected-item={selectedItem}>
+						</lightning-tree>
+					</div>
+				</template>
+			</article>
+		</div>
+		<div class="slds-col slds-size_8-of-12">
+			<template if:true={showFile}>
+				<c-subsel-s3_-file-display folder-view-type={folderViewType} shared-root-id={sharedRootId}
+					folder-type={type} selected-label={selectedLabel} parent-record-names={selectedLabel}
+					folder-parent-id={folderId} type={type} nav-stack={navStack} onrecordinserted={handleRecordInserted}
+					onsendtoparent={handleChildEvent} onbackevent={handelBackEvent}
+					oncallparentmethod={handleCallParentMethod}>
+				</c-subsel-s3_-file-display>
+			</template>
+		</div>
+
+	</div>
+</template>

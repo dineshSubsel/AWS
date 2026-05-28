@@ -1,0 +1,107 @@
+<template>
+    <div class="custom-card">
+        <!-- Card Header -->
+        <div class="custom-card-header slds-grid slds-grid_align-spread slds-p-around_small">
+            <div class="slds-media">
+                <div class="slds-media__figure">
+                    <lightning-icon icon-name="standard:folder" size="small"></lightning-icon>
+                </div>
+                <div class="slds-media__body slds-m-left_small">
+                    <h2 class="slds-text-heading_small slds-text-title_bold">S3-Folder ({files.length})</h2>
+                </div>
+            </div>
+
+            <!-- Top Right Buttons -->
+            <div class="slds-button-group" role="group">
+                <div class="button-Width">
+                    <lightning-button label="Create Folder" onclick={handleUpload} class="fixed-width-btn">
+                    </lightning-button>
+                </div>
+                <lightning-button-menu icon-name="utility:down" alternative-text="More Actions" variant="border-filled"
+                    class="slds-m-left_small" menu-alignment="right" onselect={handleMenuSelect}>
+                    <lightning-menu-item label="Delete All" value="deleteAll" disabled={isDeleteAllDisabled}>
+                    </lightning-menu-item>
+                </lightning-button-menu>
+            </div>
+        </div>
+
+        <!-- Upload Folder Modal -->
+        <template if:true={showModal}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header header">
+                        <h2 class="slds-modal__title">Create Folder</h2>
+                        <button class="slds-button slds-button_icon slds-modal__close" title="Close" onclick={closeModal}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" size="small"></lightning-icon>
+                </button>
+                    </header>
+
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <lightning-record-edit-form object-api-name={folderObjectApiName} onsuccess={handleSaveSuccess}
+                            onerror={handleSaveError} onsubmit={handleFormSubmit}>
+
+                            <lightning-messages></lightning-messages>
+
+                            <lightning-input-field field-name={nameField} required></lightning-input-field>
+
+                            <lightning-input-field field-name={parentFolderField} required></lightning-input-field>
+
+                            <div class="slds-m-top_medium slds-align_absolute-center">
+                                <lightning-button variant="neutral" label="Cancel" onclick={closeModal}>
+                                </lightning-button>
+
+                                <lightning-button class="slds-m-left_small" type="submit" variant="brand" label="Save">
+                                </lightning-button>
+                            </div>
+
+                        </lightning-record-edit-form>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <!-- Card Body -->
+        <div class="custom-card-body slds-p-around_small">
+            <template if:true={visibleFiles.length}>
+                <table
+                    class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout custom-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="slds-truncate" title="Folder Name">Folder Name</div>
+                            </th>
+                            <th>
+                                <div class="slds-truncate" title="Actions"></div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={visibleFiles} for:item="file">
+                            <tr key={file.Id}>
+                                <td>
+                                    <div class="slds-truncate file-name-cell" title={file.Name}>
+                                        <a href={file.folderLink} target="_blank">{file.Name}</a>
+                                    </div>
+                                </td>
+                                <td class="slds-text-align_right">
+                                    <lightning-button-menu alternative-text="More Actions" icon-name="utility:down"
+                                        variant="border-filled" size="small" data-file-id={file.Id}
+                                        onselect={handleFileMenuSelect}>
+                                        <lightning-menu-item value="delete" label="Delete" icon-name="utility:delete">
+                                        </lightning-menu-item>
+                                    </lightning-button-menu>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <!-- View All -->
+                <div class="slds-m-top_medium slds-align_absolute-center custom-padding">
+                    <a href="javascript:void(0)" onclick={handleToggleView}>{toggleViewLabel}</a>
+                </div>
+
+            </template>
+        </div>
+    </div>
+</template>

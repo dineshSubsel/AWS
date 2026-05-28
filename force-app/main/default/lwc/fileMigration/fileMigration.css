@@ -1,0 +1,320 @@
+/* ===== Layout & Header ===== */
+.header {
+    transform: translateY(0.4rem);
+}
+
+.icon {
+    background-color: #0070d2;
+}
+
+.custom-container {
+    color: black;
+}
+
+.padding-top {
+    padding: 0rem 0rem 0rem 1rem;
+}
+
+/* ===== Weekly Day Container ===== */
+.week-day-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-top: 8px;
+    max-width: 400px;
+}
+
+.dropdown-wrap {
+    flex: 1 1 0;
+    min-width: 120px;
+    max-width: 180px;
+}
+
+.custom-combobox lightning-combobox {
+    font-size: 12px;
+    --slds-c-input-spacing-block-start: 0.2rem;
+    --slds-c-input-spacing-block-end: 0.2rem;
+}
+
+/* ===== Inline Schedule Row ===== */
+.inline-schedule-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+/* ===== Radio Schedule Row ===== */
+.radio-schedule-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 0;
+    margin-left: 5px;
+}
+
+/* ===== Native Radio Input ===== */
+.native-radio {
+    appearance: auto;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: #0070d2;
+}
+
+/* ===== Inline Label ===== */
+.inline-label {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    margin: 0 2px;
+}
+
+/* ===== Tiny Combobox ===== */
+.tiny-combobox {
+    min-width: 100px;
+    max-width: 140px;
+    margin: 0;
+}
+
+/* ===== Horizontal Radio Group ===== */
+.horizontal-radio-group .slds-form-element__control {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.horizontal-radio-group .slds-radio {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.slds-form-element__control lightning-radio-group {
+    display: flex;
+    gap: 1.5rem;
+}
+
+/* ===== Job Status Card ===== */
+.job-status-card {
+    border: 1px solid #d8edff;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(1, 118, 211, 0.08);
+}
+
+.job-status-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #dddbda;
+    background: #f3f3f3;
+}
+
+.job-status-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #3e3e3c;
+}
+
+.job-status-badge {
+    margin-left: 8px;
+    background: #0070d2;
+    color: #fff;
+    border-radius: 12px;
+    padding: 1px 8px;
+    font-size: 12px;
+}
+
+.job-status-body {
+    padding: 12px;
+}
+
+/* ===== Spinner Container ===== */
+.spinner-container {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner-container span {
+    font-size: 0.85rem;
+    color: #6b6d70;
+}
+
+/* ===== Datatable ===== */
+lightning-datatable {
+    border-radius: 0;
+}
+
+.slds-table tbody tr:hover {
+    background-color: #f4faff;
+}
+
+.space {
+    display: contents !important;
+}
+
+.help-text {
+    margin-top: 4px;
+}
+
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ===== SOQL Section ===== */
+
+.soql-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #3e3e3c;
+}
+
+.soql-textarea-wrapper {
+    position: relative;
+}
+
+.soql-corner-tag {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: #0070d2;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ===== SOQL Error ===== */
+.soql-error-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    padding: 6px 10px;
+    border-radius: 3px;
+}
+
+.soql-error-text {
+    font-size: 0.8rem;
+    color: #c23934;
+    font-weight: 500;
+}
+
+/* ===== SOQL Actions Row ===== */
+.soql-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+/* ===== SOQL Preview Card ===== */
+.soql-preview-card {
+    margin: 12px 12px 0 12px;
+    border: 1px solid #d8edff;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.soql-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+}
+
+.soql-preview-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.soql-preview-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #032d60;
+    letter-spacing: 0.01em;
+}
+
+.soql-preview-badge {
+    background: #0070d2;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.soql-preview-limit-note {
+    font-size: 0.75rem;
+    color: #706e6b;
+    font-style: italic;
+}
+
+/* ===== SOQL Preview Body ===== */
+.soql-preview-body {
+    padding: 0;
+}
+
+/* ===== SOQL Spinner ===== */
+.soql-preview-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    gap: 12px;
+    min-height: 120px;
+}
+
+.soql-preview-spinner-text {
+    font-size: 0.85rem;
+    color: #706e6b;
+    margin-top: 8px;
+}
+
+/* ===== SOQL No Records ===== */
+.soql-no-records {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    gap: 8px;
+    min-height: 140px;
+}
+
+.soql-no-records-icon {
+    --slds-c-icon-color-foreground: #b0adab;
+    margin-bottom: 4px;
+}
+
+.soql-no-records-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #3e3e3c;
+    margin: 0;
+}
+
+.soql-no-records-sub {
+    font-size: 0.8rem;
+    color: #706e6b;
+    margin: 0;
+}

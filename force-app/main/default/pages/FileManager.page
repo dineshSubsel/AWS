@@ -1,0 +1,36 @@
+<apex:page showHeader="false" sidebar="false" standardController="Account">
+    <apex:includeLightning />
+    <div id="LightningComponentid"></div>
+
+    <script>
+        var isClassic = '{!$User.UIThemeDisplayed}' === 'Theme3';
+        console.log('Is Classic UI: ' + isClassic);
+        var recordId = "{!$CurrentPage.parameters.id}"; 
+        var objectApiName="Account";
+        var recordrecordName="{!Account.Name}";
+        console.log("Record id => ", recordId);
+
+        // Function to create and display the paragraph for Salesforce Lightning
+        function displayLightningParagraph() {
+            var lightningParagraph = document.createElement('p');
+            lightningParagraph.innerHTML = 'File Uploader is only visible for Salesforce Classic !!..';
+            document.getElementById('LightningComponentid').appendChild(lightningParagraph);
+        }
+
+        if (isClassic) {
+            $Lightning.use("c:AWSFileManager", function() {
+                $Lightning.createComponent("c:AWSFileUpload",
+                    { recordId, objectApiName, recordrecordName },
+                    "LightningComponentid",
+                    function(cmp) {
+                        console.log('AWSFileUploadComponent added in VF page');
+                    });
+            });
+        } else {
+            // Call the function to display the paragraph for Salesforce Lightning
+            displayLightningParagraph();
+                        console.log('Entered the else part');
+
+        }
+    </script>
+</apex:page>

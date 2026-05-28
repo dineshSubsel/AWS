@@ -1,0 +1,89 @@
+<template>
+    <!-- Page Header -->
+    <div class="slds-p-bottom_xx-small">
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon class="icon" icon-name="standard:file" alternative-text="Bucket Backup">
+                            </lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h1 class="header">
+                                <span class="slds-page-header__title slds-truncate" title="Bucket Backup">
+                                    Bucket Backup
+                                </span>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card -->
+    <lightning-card variant="Narrow">
+
+        <!-- Description Section -->
+        <div class="slds-text-align_center slds-m-bottom_medium">
+            <p class="slds-text-heading_small">
+                Backup our S3 bucket data into a ZIP file
+            </p>
+            <p class="slds-text-body_regular slds-text-color_weak">
+                Click the button below to download all files from the bucket as a compressed ZIP archive.
+            </p>
+        </div>
+
+        <!-- Progress Bar -->
+        <template if:true={isprogress}>
+            <div class="slds-grid slds-wrap slds-gutters">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-12 slds-large-size_1-of-12">
+                </div>
+
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_8-of-12 slds-large-size_8-of-12">
+                    <lightning-progress-bar value={progress}></lightning-progress-bar>
+                </div>
+
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12 slds-large-size_2-of-12 slds-align_absolute-center">
+                    <h1>{countfile}/{totalfile} Files Downloaded</h1>
+                </div>
+
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-12 slds-large-size_1-of-12">
+                </div>
+            </div>
+            <br><br>
+        </template>
+
+        <!-- Action Button -->
+        <div class="slds-align_absolute-center">
+            <lightning-button 
+                variant="brand" 
+                label="Get Bucket Backup" 
+                title="Get Bucket Backup"
+                onclick={genenreateZipfile} 
+                disabled={iscompleted}>
+            </lightning-button>
+
+            <!-- Success Icon -->
+            <template if:true={iscompleted}>
+                &nbsp;
+                <lightning-icon 
+                    icon-name="utility:success" 
+                    alternative-text="Success!" 
+                    variant="success"
+                    title="success" 
+                    size="small" 
+                    onclick={enableDownload}>
+                </lightning-icon>
+            </template>
+        </div>
+
+    </lightning-card>
+
+    <!-- Spinner -->
+    <template if:true={isSpinner}>
+        <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+    </template>
+
+</template>
